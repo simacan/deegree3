@@ -3,15 +3,15 @@
   <groupId>org.deegree</groupId>
   <artifactId>deegree</artifactId>
   <packaging>pom</packaging>
-  <version>3.2-pre12-SNAPSHOT</version>
+  <version>3.2-pre13-SNAPSHOT</version>
   <name>deegree</name>
   <description>Framework for OGC Web Service implementations and geospatial applications</description>
   <url>http://www.deegree.org/</url>
 
   <scm>
-    <connection>scm:svn:http://svn.wald.intevation.org/svn/deegree/deegree3/trunk</connection>
-    <developerConnection>scm:svn:svn+ssh://svn.wald.intevation.org/deegree/deegree3/trunk</developerConnection>
-    <url>http://svn.wald.intevation.org/svn/deegree/deegree3/trunk</url>
+    <connection>scm:git:git@github.com:deegree/deegree3.git</connection>
+    <developerConnection>scm:git:git@github.com:deegree/deegree3.git</developerConnection>
+    <url>https://github.com/deegree/deegree3.git</url>
   </scm>
 
   <repositories>
@@ -101,7 +101,7 @@
         <plugin>
           <groupId>org.deegree</groupId>
           <artifactId>deegree-maven-plugin</artifactId>
-          <version>1.15</version>
+          <version>1.16</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -131,7 +131,7 @@
         <plugin>
           <groupId>org.antlr</groupId>
           <artifactId>antlr3-maven-plugin</artifactId>
-          <version>3.2</version>
+          <version>3.4</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -166,7 +166,6 @@
         <version>2.1</version>
         <configuration>
           <preparationGoals>clean install</preparationGoals>
-          <tagBase>svn+ssh://svn.wald.intevation.org/deegree/deegree3/tags</tagBase>
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <arguments>-e</arguments>
         </configuration>
@@ -1021,7 +1020,7 @@
       <dependency>
         <groupId>org.antlr</groupId>
         <artifactId>antlr-runtime</artifactId>
-        <version>3.2</version>
+        <version>3.4</version>
       </dependency>
       <dependency>
         <groupId>net.sf.squirrel-sql.thirdparty.non-maven</groupId>

@@ -4,12 +4,19 @@
 Feature store configuration
 ===========================
 
-Feature stores are data sources that provide access to stored features. The two most common use cases for feature stores are:
+Feature stores are data stores that provide access to stored features. The two most common use cases for feature stores are:
 
 * Accessing via WFS
-* Provides data for vector layers in the WMS
+* Providing of data for feature layers
 
-The remainder of this chapter describes some relevant terms and the feature store configuration files in detail. You can access this configuration level by clicking on the ``feature stores`` link in the administration console. The configuration files have to be created or edited in the ``datasources/feature/`` directory of the deegree workspace.
+The remainder of this chapter describes some relevant terms and the feature store configuration files in detail. You can access this configuration level by clicking on the **feature stores** link in the administration console. The configuration files are located in the **datasources/feature/** subdirectory of the active deegree workspace directory.
+
+.. figure:: images/workspace-overview-feature.png
+   :figwidth: 80%
+   :width: 80%
+   :target: _images/workspace-overview-feature.png
+
+   Feature store resources provide access to geo objects
 
 -----------------------------------------------
 Features, feature types and application schemas
@@ -19,24 +26,30 @@ Features are abstractions of real-world objects, such as rivers, buildings, stre
 
 Feature types define classes of features. For example, a feature type ``River`` could define a class of river features that all have the same properties
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Simple vs. complex feature types
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Simple vs. rich features and feature types
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Some feature type are much more complex than others. Traditionally, GIS software only copes with "simple" feature types:
+Some feature types have a more complex structure than others. Traditionally, GIS software only copes with "simple" feature types:
 
 * Every property is either simple (string, number, date, etc.) or a geometry
 * Only a single property with one name is allowed
 
-Basically, a simple feature type is everything that can be represented using a single database table or a single shape file. In contrast, complex feature types additionally allow the following:
+Basically, a simple feature type is everything that can be represented using a single database table or a single shape file. In contrast, rich feature types additionally allow the following:
 
 * Multiple properties with the same name
 * Properties that contain other features
-* Properties that reference other features
+* Properties that reference other features or GML objects
 * Properties that contain GML core datatypes which are not geometries (e.g. code types or units of measure)
 * Properties that contain generic XML
 
-All deegree feature stores support simple feature types, but only the SQL feature store and the memory feature store support complex feature types.
+.. topic:: Example of a rich feature instance encoded in GML
+
+   .. literalinclude:: xml/feature_complex.xml
+      :language: xml
+
+.. hint::
+   All deegree feature stores support simple feature types, but only the SQL feature store and the memory feature store support complex feature types.
 
 ^^^^^^^^^^^^^^^^^^^
 Application schemas
@@ -56,7 +69,7 @@ These kinds of application schemas can be served using the SQL feature store or 
 Shape feature store
 -------------------
 
-The shape feature store serves a feature type from an ESRI shape file. It is currently not transaction capable. The configuration format for the deegree shape feature store is defined by schema file http://schemas.deegree.org/datasource/feature/shape/3.1.0/shape.xsd.
+The shape feature store serves a feature type from an ESRI shape file. It is currently not transaction capable and only supports simple feature types.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Minimal configuration example
@@ -103,7 +116,7 @@ This configuration will set up a feature store based on the shape file ``/tmp/ri
 Configuration options
 ^^^^^^^^^^^^^^^^^^^^^
 
-The following table lists all available configuration options. When specifiying them, their order must be respected.
+The configuration format for the deegree shape feature store is defined by schema file http://schemas.deegree.org/datasource/feature/shape/3.1.0/shape.xsd. The following table lists all available configuration options. When specifiying them, their order must be respected.
 
 .. table:: Options for ``ShapeFeatureStore`` configuration files
 
@@ -131,7 +144,7 @@ The following table lists all available configuration options. When specifiying 
 Memory feature store
 --------------------
 
-The memory feature store serves feature types that are defined by a GML application schema and are stored in memory. It is transaction capable. The configuration format for the deegree memory feature store is defined by schema file http://schemas.deegree.org/datasource/feature/memory/3.0.0/memory.xsd.
+The memory feature store serves feature types that are defined by a GML application schema and are stored in memory. It is transaction capable and supports rich GML application schemas.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Minimal configuration example
@@ -171,7 +184,7 @@ This configuration will set up a memory feature store with the following setting
 Configuration options
 ^^^^^^^^^^^^^^^^^^^^^
 
-The following table lists all available configuration options (the complex ones contain nested options themselves). When specifiying them, their order must be respected.
+The configuration format for the deegree memory feature store is defined by schema file http://schemas.deegree.org/datasource/feature/memory/3.0.0/memory.xsd. The following table lists all available configuration options (the complex ones contain nested options themselves). When specifiying them, their order must be respected.
 
 .. table:: Options for ``Memory Feature Store`` configuration files
 
@@ -189,7 +202,7 @@ The following table lists all available configuration options (the complex ones 
 Simple SQL feature store
 ------------------------
 
-The simple SQL feature store serves simple feature types that are stored in a spatially-enabled database. However, it's not suited for mapping rich GML application schemas and does not support transactions. If you need these capabilities, use the SQL feature store instead. The configuration format is defined by schema file http://schemas.deegree.org/datasource/feature/simplesql/3.0.1/simplesql.xsd.
+The simple SQL feature store serves simple feature types that are stored in a spatially-enabled database. However, it's not suited for mapping rich GML application schemas and does not support transactions. If you need these capabilities, use the SQL feature store instead.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Minimal configuration example
@@ -215,7 +228,7 @@ More complex configuration example
 Configuration options
 ^^^^^^^^^^^^^^^^^^^^^
 
-The following table lists all available configuration options (the complex ones contain nested options themselves). When specifiying them, their order must be respected.
+The configuration format is defined by schema file http://schemas.deegree.org/datasource/feature/simplesql/3.0.1/simplesql.xsd. The following table lists all available configuration options (the complex ones contain nested options themselves). When specifiying them, their order must be respected.
 
 .. table:: Options for ``Simple SQL feature store`` configuration files
 
@@ -239,35 +252,27 @@ The following table lists all available configuration options (the complex ones 
 | LODStatement                | 0..n        | Complex | Statements for specific WMS scale ranges                                     |
 +-----------------------------+-------------+---------+------------------------------------------------------------------------------+
 
--------------------------
-SQL feature store: Basics
--------------------------
+-----------------
+SQL feature store
+-----------------
 
-The SQL feature store allows to configure highly flexible mappings between feature types and database tables. It can be used for simple mapping tasks (mapping a single database table to a feature type) as well as sophisticated ones (mapping a complete INSPIRE Data Theme to dozens or hundreds of database tables). As an alternative to relational decomposition setups, it offers the so-called BLOB-mode which can store features of arbitrary complexity in a single table with almost zero configuration. In contrast to the simple SQL feature store, the SQL feature store is transaction capable (even for complex mappings) and very well suited for mapping rich GML application schemas. It currently supports the following backends:
+The SQL feature store allows to configure highly flexible mappings between feature types and database tables. It can be used for simple mapping tasks (mapping a single database table to a feature type) as well as sophisticated ones (mapping a complete INSPIRE Data Theme to dozens or hundreds of database tables). As an alternative to relational decomposition setups, it additionally offers the so-called BLOB-mode which can store features of arbitrary complexity in a single table with almost zero configuration. In contrast to the simple SQL feature store, the SQL feature store is transaction capable (even for complex mappings) and very well suited for mapping rich GML application schemas. It currently supports the following backends:
 
 * PostgreSQL (8.3, 8.4, 9.0, 9.1) with PostGIS extension (1.4, 1.5, 2.0)
 * Oracle Spatial (10g, 11g)
-
-The SQL feature store configuration format is defined by schema file http://schemas.deegree.org/datasource/feature/sql/3.2.0/sql.xsd.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Minimal configuration example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The only mandatory element is *JDBCConnId*. A minimal valid configuration example looks like this:
+A very minimal valid configuration example looks like this:
 
 .. topic:: SQL feature store: Minimal configuration
 
    .. literalinclude:: xml/sqlfeaturestore_tabledriven1.xml
       :language: xml
 
-This example assumes that the database contains a table named ``country``, which is located within the default database schema (for PostgreSQL ``public``). Alternatively you can fully qualify the table name such as ``public.country``. The feature store will try to determine the columns of the table automatically and derive a suitable feature type definition:
-
-* Feature type name: ``app:country`` (app=http://www.deegree.org/app)
-* Feature id (``gml:id``) based on primary key column of table ``country``
-* Every primitive column (number, string, date) is used as a primitive property
-* Every geometry column is used as a geometry property
-* CRS of geometry is derived from database SRID
+This configuration maps a single table as a feature type. See blabla for more details of the behaviour.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 More complex configuration example
@@ -280,11 +285,13 @@ A more complex example:
    .. literalinclude:: xml/sqlfeaturestore_tabledriven4.xml
       :language: xml
 
+This configuration maps two feature types from an GML application schema to a relational model with joined tables. See blabla for more details of the behaviour.
+
 ^^^^^^^^^^^^^^^^^^^^^
 Configuration options
 ^^^^^^^^^^^^^^^^^^^^^
 
-The following table lists all available configuration options (the complex ones contain nested options themselves). When specifying them, their order must be respected.
+The SQL feature store configuration format is defined by schema file http://schemas.deegree.org/datasource/feature/sql/3.2.0/sql.xsd. The following table lists all available configuration options (the complex ones contain nested options themselves). When specifying them, their order must be respected.
 
 .. table:: Options for ``SQL feature store`` configuration files
 
@@ -314,7 +321,146 @@ The following table lists all available configuration options (the complex ones 
 | FeatureCache                | 0..n        | Complex | TBD                                                                          |
 +-----------------------------+-------------+---------+------------------------------------------------------------------------------+
 
-Although configuration is similar if you plan to map an existing GML application schema, there are some differences as described in the following table:
+These options are explained in the remaining sections of this chapter.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Mapping tables to feature types
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This section describes how to define the mapping of database tables to feature types. Each *FeatureTypeMapping* element defines the mapping between one table and one feature type:
+
+.. topic:: SQL feature store: Mapping a single table
+
+   .. literalinclude:: xml/sqlfeaturestore_tabledriven1.xml
+      :language: xml
+
+This example assumes that the database contains a table named ``country``, which is located within the default database schema (for PostgreSQL ``public``). Alternatively you can fully qualify the table name such as ``public.country``. The feature store will try to automatically determine the columns of the table and derive a suitable feature type model:
+
+* Feature type name: ``app:country`` (app=http://www.deegree.org/app)
+* Feature id (``gml:id``) based on primary key column of table ``country``
+* Every primitive column (number, string, date) is used as a primitive property
+* Every geometry column is used as a geometry property
+
+A single config file may map more than one table. The following example defines two feature types, based on tables ``country`` and ``cities``.
+
+.. topic:: SQL feature store: Mapping two tables
+
+   .. literalinclude:: xml/sqlfeaturestore_tabledriven2.xml
+      :language: xml
+
+There are several optional attributes and elements that give you more control over the derived feature type definition. The ``name`` attribute allows to set the feature type name explicity. In the following example, it will be ``app:Land`` (Land is German for country).
+
+.. topic:: SQL feature store: Customizing the feature type name
+
+   .. literalinclude:: xml/sqlfeaturestore_tabledriven3.xml
+      :language: xml
+
+Use standard XML namespace binding mechanisms to control the namespace and prefix of the feature type:
+
+.. topic:: SQL feature store: Customizing the feature type namespace and prefix
+
+   .. literalinclude:: xml/sqlfeaturestore_tabledriven4.xml
+      :language: xml
+
+^^^^^^^^^^^^^^^^^^^^^^
+Mapping the feature id
+^^^^^^^^^^^^^^^^^^^^^^
+
+In order to customize the mapping of the feature id (gml:id attribute) to a key column of the feature type table, use the *FIDMapping* element. It is the first child option of every *FeatureTypeMapping* element:
+
+.. topic:: SQL feature store (schema-driven mode): FeatureTypeMapping elements
+
+   .. literalinclude:: xml/sqlfeaturestore_featuretypemapping1.xml
+      :language: xml
+
+.. hint::
+   After providing a correct FIDMapping, a feature type is already queryable, e.g. you can perform a ``GetFeature`` requests against a WFS that uses this feature store. When creating a configuration manually for an existing database, it is a good idea to do this as a first step. This way you test if everything works so far (although no properties will be returned).
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Mapping columns to properties
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In order to customize the mapping between table columns and the properties of a feature type, the following mapping elements are available:
+
+* **Primitive**: Maps a primitive property, a text node or an attribute node.
+* **Geometry**: Maps a geometry property.
+* **Feature**: Maps a referenced or inlined subfeature property.
+* **Complex**: Maps a complex element that is neither a geometry nor a feature. It is a generic container for mapping nested element structures.
+
+.. hint::
+   The *Feature* and *Complex* mappings are only usable if you specify a GML application schema using the *GMLSchema* option. Their usage is described later in section
+
+^^^^^^^^^^^^
+Transactions
+^^^^^^^^^^^^
+
+When new features are inserted into a SQL feature store (for example via a WFS transaction), the user can choose between different id generation modes. These modes control whether feature ids (the values in the gml:id attribute) have to be re-generated by the feature store. There are three id generation modes available, which stem from the WFS 1.1.0 specification:
+
+* **UseExisting**: The feature store will store the original gml:id values that have been provided in the input. This may lead to errors if the provided ids are already in use or if the format of the id does not match the configuration.
+* **GenerateNew**: The feature store will discard the original gml:id values and use the configured generator to produce new and unique identifiers. References in the input (xlink:href) that point to a feature with an reassigned id are fixed as well, so reference consistency is ensured.
+* **ReplaceDuplicate**: The feature store will try to use the original gml:id values that have been provided in the input. If a certain identifier already exists in the database, the configured generator is used to produce a new and unique identifier. NOTE: Support for this mode is not implemented yet.
+
+.. hint::
+   In a WFS 1.1.0 insert, the id generation mode is controlled by attribute *idGenMode*. WFS 1.0.0 and WFS 2.0.0 don't support to specify it on a request basis. However, in the deegree WFS configuration you can control it in the option *EnableTransactions*.
+
+In order to generate the required ids for the *GenerateNew*, you can choose between different generators. These can be configured in the *FIDMapping* child element of *FeatureTypeMapping*.
+
+"""""""""""""""""
+Auto id generator
+"""""""""""""""""
+
+The auto id generator depends on the database to provide new values for the feature id column(s) on insert. This requires that the used feature id columns are configured appropriately in the database (e.g. that they have a trigger or a suitable column type such as ``SERIAL`` in PostgreSQL).
+
+.. topic:: SQL feature store: Auto id generator example
+
+   .. literalinclude:: xml/sqlfeaturestore_idgenerator1.xml
+      :language: xml
+
+This snippet defines the feature id mapping and the id generation behaviour for a feature type called ``ad:Address``
+
+* When querying, the prefix ``AD_ADDRESS_`` is prepended to column ``attr_gml_id`` to create the exported feature id. If ``attr_gml_id`` contains the value ``42`` in the database, the feature instance that is created from this row will have the value ``AD_ADDRESS_42``.
+* On insert (mode=UseExisting), provided gml:id values must have the format ``AD_ADDRESS_$``. The prefix ``AD_ADDRESS_`` is removed and the remaining part of the identifier is stored in column ``attr_gml_id``.
+* On insert (mode=GenerateNew), the database must automatically create a new value for column ``attr_gml_id`` which will be the postfix of the newly assigned feature id.
+
+""""""""""""""
+UUID generator
+""""""""""""""
+
+The UUID generator generator uses Java's UUID implementation to generate new and unique identifiers. This requires that the database column for the id is a character column that can store strings with a length of 36 characters and that the database does not perform any kind of insertion value generation for this column (e.g triggers).
+
+.. topic:: SQL feature store: UUID generator example
+
+   .. literalinclude:: xml/sqlfeaturestore_idgenerator2.xml
+      :language: xml
+
+This snippet defines the feature id mapping and the id generation behaviour for a feature type called ``ad:Address``
+
+* When querying, the prefix ``AD_ADDRESS_`` is prepended to column ``attr_gml_id`` to create the exported feature id. If ``attr_gml_id`` contains the value ``550e8400-e29b-11d4-a716-446655440000`` in the database, the feature instance that is created from this row will have the value ``AD_ADDRESS_550e8400-e29b-11d4-a716-446655440000``.
+* On insert (mode=UseExisting), provided gml:id values must have the format ``AD_ADDRESS_$``. The prefix ``AD_ADDRESS_`` is removed and the remaining part of the identifier is stored in column ``attr_gml_id``.
+* On insert (mode=GenerateNew), a new UUID is generated and stored in column ``attr_gml_id``.
+
+"""""""""""""""""""""
+Sequence id generator
+"""""""""""""""""""""
+
+The sequence id generator queries a database sequence to generate new and unique identifiers. This requires that the database column for the id is compatible with the values generated by the sequence and that the database does not perform any kind of automatical value insertion for this column (e.g triggers).
+
+.. topic:: SQL feature store: Database sequence generator example
+
+   .. literalinclude:: xml/sqlfeaturestore_idgenerator3.xml
+      :language: xml
+
+This snippet defines the feature id mapping and the id generation behaviour for a feature type called ``ad:Address``
+
+* When querying, the prefix ``AD_ADDRESS_`` is prepended to column ``attr_gml_id`` to create the exported feature id. If ``attr_gml_id`` contains the value ``42`` in the database, the feature instance that is created from this row will have the value ``AD_ADDRESS_42``.
+* On insert (mode=UseExisting), provided gml:id values must have the format ``AD_ADDRESS_$``. The prefix ``AD_ADDRESS_`` is removed and the remaining part of the identifier is stored in column ``attr_gml_id``.
+* On insert (mode=GenerateNew), the database sequence ``SEQ_FID`` is queried for new values to be stored in column ``attr_gml_id``.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Mapping a GML application schema
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The former sections assumed a mapping configuration that didn't specify a GML application schema. If a GML application schema is specified in the SQL feature store configuration, the mapping possibilities are extended. Although configuration is similar to a configuration, there are some differences as described in the following table:
 
 .. table:: Blabla
 
@@ -333,116 +479,7 @@ Although configuration is similar if you plan to map an existing GML application
 +------------------------------+----------------------------+---------------------------------+
 
 .. hint::
-  If you want to map an existing GML application schema (e.g. INSPIRE Data Themes, GeoSciML, CityGML, XPlanung, AAA) always provide this schema in the configuration. Otherwise, try if table-driven meets your mapping requirements. If your table structures turn out to be too complex to be usable with table-driven mode, you will need to create a matching GML application schema manually and use schema-driven mode.
-
----------------------------------
-SQL feature store: Mapping tables
----------------------------------
-
-This section describes how to define the mapping of database tables to feature types. Every *FeatureTypeMapping* element defines the mapping between a table and a feature type:
-
-.. topic:: SQL feature store (table-driven mode): Mapping a single table
-
-   .. literalinclude:: xml/sqlfeaturestore_tabledriven1.xml
-      :language: xml
-
-The above example assumes that the database contains a table named ``country``, which is located within the default database schema (for PostgreSQL ``public``). Alternatively you can fully qualify the table name such as ``public.country``. The feature store will determine the columns of the table automatically and derive a feature type definition:
-
-* Feature type name: ``app:country`` (app=http://www.deegree.org/app)
-* feature id (``gml:id``) based on primary key column of table ``country``
-* every primitive column (number, string, date) is used as a primitive property
-* every geometry column is used as a geometry property
-
-A single config file may map more than one table. The following example defines two feature types, based on tables ``country`` and ``cities``.
-
-.. topic:: SQL feature store (table-driven mode): Mapping two tables
-
-   .. literalinclude:: xml/sqlfeaturestore_tabledriven2.xml
-      :language: xml
-
-There are several optional attributes and elements that give you more control over the derived feature type definition. The ``name`` attribute allows to set the feature type name explicity. In the following example, it will be ``app:Land`` (Land is German for country).
-
-.. topic:: SQL feature store (table-driven mode): Customizing the feature type name
-
-   .. literalinclude:: xml/sqlfeaturestore_tabledriven3.xml
-      :language: xml
-
-Use standard XML namespace binding mechanisms to control the namespace and prefix of the feature type:
-
-.. topic:: SQL feature store (table-driven mode): Customizing the feature type namespace and prefix
-
-   .. literalinclude:: xml/sqlfeaturestore_tabledriven4.xml
-      :language: xml
-
--------------------------------
-SQL feature store: Transactions
--------------------------------
-
-When new features are inserted into a SQL feature store (for example via a WFS transaction), the user can choose between different id generation modes. These modes control whether feature ids (the values in the gml:id attribute) have to be re-generated by the feature store. There are three id generation modes available, which stem from the WFS 1.1.0 specification:
-
-* **UseExisting**: The feature store will store the original gml:id values that have been provided in the input. This may lead to errors if the provided ids are already in use or if the format of the id does not match the configuration.
-* **GenerateNew**: The feature store will discard the original gml:id values and use the configured generator to produce new and unique identifiers. References in the input (xlink:href) that point to a feature with an reassigned id are fixed as well, so reference consistency is ensured.
-* **ReplaceDuplicate**: The feature store will try to use the original gml:id values that have been provided in the input. If a certain identifier already exists in the database, the configured generator is used to produce a new and unique identifier. NOTE: Support for this mode is not implemented yet.
-
-.. hint::
-   In a WFS 1.1.0 insert, the id generation mode is controlled by attribute *idGenMode*. WFS 1.0.0 and WFS 2.0.0 don't support to specify it on a request basis. However, in the deegree WFS configuration you can control it in the option *EnableTransactions*.
-
-In order to generate the required ids for the *GenerateNew*, you can choose between different generators. These can be configured in the *FIDMapping* child element of *FeatureTypeMapping*.
-
-^^^^^^^^^^^^^^^^^
-Auto id generator
-^^^^^^^^^^^^^^^^^
-
-The auto id generator depends on the database to provide new values for the feature id column(s) on insert. This requires that the used feature id columns are configured appropriately in the database (e.g. that they have a trigger or a suitable column type such as ``SERIAL`` in PostgreSQL).
-
-.. topic:: SQL feature store: Auto id generator example
-
-   .. literalinclude:: xml/sqlfeaturestore_idgenerator1.xml
-      :language: xml
-
-This snippet defines the feature id mapping and the id generation behaviour for a feature type called ``ad:Address``
-
-* When querying, the prefix ``AD_ADDRESS_`` is prepended to column ``attr_gml_id`` to create the exported feature id. If ``attr_gml_id`` contains the value ``42`` in the database, the feature instance that is created from this row will have the value ``AD_ADDRESS_42``.
-* On insert (mode=UseExisting), provided gml:id values must have the format ``AD_ADDRESS_$``. The prefix ``AD_ADDRESS_`` is removed and the remaining part of the identifier is stored in column ``attr_gml_id``.
-* On insert (mode=GenerateNew), the database must automatically create a new value for column ``attr_gml_id`` which will be the postfix of the newly assigned feature id.
-
-^^^^^^^^^^^^^^
-UUID generator
-^^^^^^^^^^^^^^
-
-The UUID generator generator uses Java's UUID implementation to generate new and unique identifiers. This requires that the database column for the id is a character column that can store strings with a length of 36 characters and that the database does not perform any kind of insertion value generation for this column (e.g triggers).
-
-.. topic:: SQL feature store: UUID generator example
-
-   .. literalinclude:: xml/sqlfeaturestore_idgenerator2.xml
-      :language: xml
-
-This snippet defines the feature id mapping and the id generation behaviour for a feature type called ``ad:Address``
-
-* When querying, the prefix ``AD_ADDRESS_`` is prepended to column ``attr_gml_id`` to create the exported feature id. If ``attr_gml_id`` contains the value ``550e8400-e29b-11d4-a716-446655440000`` in the database, the feature instance that is created from this row will have the value ``AD_ADDRESS_550e8400-e29b-11d4-a716-446655440000``.
-* On insert (mode=UseExisting), provided gml:id values must have the format ``AD_ADDRESS_$``. The prefix ``AD_ADDRESS_`` is removed and the remaining part of the identifier is stored in column ``attr_gml_id``.
-* On insert (mode=GenerateNew), a new UUID is generated and stored in column ``attr_gml_id``.
-
-^^^^^^^^^^^^^^^^^^^^^
-Sequence id generator
-^^^^^^^^^^^^^^^^^^^^^
-
-The sequence id generator queries a database sequence to generate new and unique identifiers. This requires that the database column for the id is compatible with the values generated by the sequence and that the database does not perform any kind of automatical value insertion for this column (e.g triggers).
-
-.. topic:: SQL feature store: Database sequence generator example
-
-   .. literalinclude:: xml/sqlfeaturestore_idgenerator3.xml
-      :language: xml
-
-This snippet defines the feature id mapping and the id generation behaviour for a feature type called ``ad:Address``
-
-* When querying, the prefix ``AD_ADDRESS_`` is prepended to column ``attr_gml_id`` to create the exported feature id. If ``attr_gml_id`` contains the value ``42`` in the database, the feature instance that is created from this row will have the value ``AD_ADDRESS_42``.
-* On insert (mode=UseExisting), provided gml:id values must have the format ``AD_ADDRESS_$``. The prefix ``AD_ADDRESS_`` is removed and the remaining part of the identifier is stored in column ``attr_gml_id``.
-* On insert (mode=GenerateNew), the database sequence ``SEQ_FID`` is queried for new values to be stored in column ``attr_gml_id``.
-
---------------------------------------------------
-SQL feature store: Mapping GML application schemas
---------------------------------------------------
+  If you want to create a configuration for an existing GML application schema (e.g. INSPIRE Data Themes, GeoSciML, CityGML, XPlanung, AAA) always provide this schema in the configuration. Otherwise, try if table-driven meets your mapping requirements. If your table structures turn out to be too complex to be usable with table-driven mode, you will need to create a matching GML application schema manually and use schema-driven mode.
 
 In schema-driven mode, the SQL feature store always retrieves feature type definitions and property declarations from a GML application schema (e.g. INSPIRE Addresses, GeoSciML, CityGML, XPlanung, AAA) specified in the configuration. A basic configuration for schema-driven mode defines the JDBC connection id, the CRS of the stored geometries and one or more GML schema files that make up the application schema:
 
@@ -451,19 +488,7 @@ In schema-driven mode, the SQL feature store always retrieves feature type defin
    .. literalinclude:: xml/sqlfeaturestore_schemadriven1.xml
       :language: xml
 
-* ``StorageCRS``:
-* ``GMLSchemaFile``:
-
-The remainder of the configuration defines how feature types from the GML schema are mapped to database tables and columns. Schema-driven mode knows two variants for mapping feature types:
-
-* Relational mapping:
-* BLOB mapping:
-
-^^^^^^^^^^^^^^^^^^
-Relational mapping
-^^^^^^^^^^^^^^^^^^
-
-In schema-driven, relational mapping mode, the mapping of a feature type is defined using ``FeatureTypeMapping`` elements:
+As in table-driven mode, the mapping of a feature type is defined using a ``FeatureTypeMapping`` element:
 
 .. topic:: SQL FeatureStore (Schema-driven mode): Relational skeleton config
 
@@ -477,20 +502,6 @@ The ``FeatureTypeMapping`` element has the following attributes:
 
 .. hint::
    In schema-driven mode, every mapped feature type must be defined in the referenced GML schema file. It is however not necessary to map all feature types defined in the schema. Unmapped feature types will be known to the feature store (e.g. a WFS will list them in a GetCapabilities response), but not queryable.
-
-""""""""""
-Feature id
-""""""""""
-
-The first child of every ``FeatureTypeMapping`` element must be a ``FIDMapping`` element:
-
-.. topic:: SQL feature store (schema-driven mode): FeatureTypeMapping elements
-
-   .. literalinclude:: xml/sqlfeaturestore_featuretypemapping1.xml
-      :language: xml
-
-.. hint::
-   After providing a correct FIDMapping, a feature type is already queryable, e.g. you can perform a ``GetFeature`` requests against a WFS that uses this feature store. When creating a configuration manually for an existing database, it is a good idea to do this as a first step. This way you test if everything works so far (although no properties will be returned).
 
 """"""""""
 Properties

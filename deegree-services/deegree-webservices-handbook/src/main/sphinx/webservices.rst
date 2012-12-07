@@ -2,7 +2,14 @@
 Webservice configuration
 ========================
 
-This chapter describes the deegree webservices configuration files. You can access this configuration level by clicking on the ``web services`` link in the administration console. The configuration files have to be created or edited in the ``services/`` directory of the deegree workspace.
+This chapter describes the deegree webservices configuration files. You can access this configuration level by clicking on the **web services** link in the administration console. The configuration files are located in the **services/** subdirectory of the active deegree workspace directory.
+
+.. figure:: images/workspace-overview-services.png
+   :figwidth: 80%
+   :width: 80%
+   :target: _images/workspace-overview-services.png
+
+   Web services are the top-level resources of the deegree workspace
 
 .. _anchor-configuration-wfs:
 
@@ -13,16 +20,16 @@ Web Feature Service (WFS)
 A deegree WFS configuration consists of a WFS configuration file and any number of feature store configuration files. Feature stores provide access to the actual feature data (which may be stored in any of the supported backends, e.g. in shapefiles or spatial databases such as PostGIS or Oracle Spatial). In transactional mode (WFS-T), feature stores are also used for modification of stored features:
 
 .. figure:: images/workspace-wfs.png
-   :figwidth: 90%
-   :width: 90%
+   :figwidth: 80%
+   :width: 80%
    :target: _images/workspace-wfs.png
 
-   Workspace components involved in a deegree WFS configuration
+   A WFS resource is connected to any number of feature store resources
 
 .. tip::
-  In order to fully understand deegree WFS configuration, you will have to read chapter :ref:`anchor-configuration-featurestore` as well.
+  In order to fully master deegree WFS configuration, you will have to read chapter :ref:`anchor-configuration-featurestore` as well.
 
-The deegree WFS config file format is defined by schema file http://schemas.deegree.org/services/wfs/3.1.0/wfs_configuration.xsd. The root element is ``deegreeWFS`` and the config attribute must be ``3.1.0``. The only mandatory option is ``QueryCRS``, therefore, a minimal WFS configuration example looks like this:
+The only mandatory option is ``QueryCRS``, therefore, a minimal WFS configuration example looks like this:
 
 .. topic:: WFS config example 1: Minimal configuration
 
@@ -36,7 +43,7 @@ This will setup a deegree WFS with the feature types from all configured feature
    .. literalinclude:: xml/wfs_complex.xml
       :language: xml
 
-The following table lists all available configuration options (the complex ones contain nested options themselves). When specifiying them, their order must be respected.
+The deegree WFS config file format is defined by schema file http://schemas.deegree.org/services/wfs/3.1.0/wfs_configuration.xsd. The root element is ``deegreeWFS`` and the config attribute must be ``3.1.0``. The following table lists all available configuration options (the complex ones contain nested options themselves). When specifiying them, their order must be respected.
 
 .. table:: Options for ``deegreeWFS``
 
@@ -202,11 +209,11 @@ Web Map Service (WMS)
 In deegree terminology, a deegree WMS renders maps from data stored in feature, coverage and tile stores. The WMS is configured using a layer structure, called a *theme*. A theme can be thought of as a collection of layers, organized in a tree structure. *What* the layers show is configured in a layer configuration, and *how* it is shown is configured in a style file. Supported style languages are StyledLayerDescriptor (SLD) and Symbology Encoding (SE).
 
 .. figure:: images/workspace-wms.png
-   :figwidth: 90%
-   :width: 90%
+   :figwidth: 80%
+   :width: 80%
    :target: _images/workspace-wms.png
 
-   A deegree WMS configuration defines a hierarchy of layers
+   A WMS resource is connected to exactly one theme resource
 
 .. tip::
   In order to fully understand deegree WMS configuration, you will have to learn configuration of other workspace aspects as well. Chapter :ref:`anchor-configuration-renderstyles` describes the creation of layers and styling rules. Chapter :ref:`anchor-configuration-featurestore` describes the configuration of vector data access and chapter :ref:`anchor-configuration-coveragestore` describes the configuration of raster data access.
@@ -377,11 +384,11 @@ Web Map Tile Service (WMTS)
 In deegree terminology, a deegree WMTS provides access to tiles stored in tile stores. The WMTS is configured using so-called *themes*. A theme can be thought of as a collection of layers, organized in a tree structure.
 
 .. figure:: images/workspace-wmts.png
-   :figwidth: 90%
-   :width: 90%
+   :figwidth: 80%
+   :width: 80%
    :target: _images/workspace-wmts.png
 
-   Workspace components involved in a deegree WMTS configuration
+   A WMTS resource is connected to any number of theme resources (with tile layers)
 
 .. tip::
   In order to fully understand deegree WMTS configuration, you will have to learn configuration of other workspace aspects as well. Chapter :ref:`anchor-configuration-tilestore` describes the configuration of tile data access. Chapter :ref:`anchor-configuration-layers` describes the configuration of layers (only tile layers are usable for the WMTS). Chapter :ref:`anchor-configuration-themes` describes how to create a theme from layers.
@@ -421,11 +428,52 @@ Catalogue Service for the Web (CSW)
 In deegree terminology, a deegree CSW provides access to metadata records stored in a metadata store. If the metadata store is transaction-capable, CSW transactions can be used to modify the stored records.
 
 .. figure:: images/workspace-csw.png
-   :figwidth: 90%
-   :width: 90%
+   :figwidth: 80%
+   :width: 80%
    :target: _images/workspace-csw.png
 
-   Workspace components involved in a deegree CSW configuration
+   A CSW resource is connected to exactly one metadata store resource
+   
+.. tip::
+  In order to fully understand deegree CSW configuration, you will have to learn configuration of other workspace aspects as well. Chapter :ref:`anchor-configuration-metadatastore` describes the configuration of metadatastores.
+
+The deegree CSW config file format is defined by schema file http://schemas.deegree.org/services/csw/3.2.0/csw_configuration.xsd. The root element is ``deegreeCSW`` and the config attribute must be ``3.2.0``. There is no mandatory element, therefore a minimal CSW configuration example looks like this:
+
+.. topic:: CSW config example 1: Minimal configuration
+
+   .. literalinclude:: xml/csw_basic.xml
+      :language: xml
+   
+The following table lists all available configuration options. When specifiying them, their order must be respected.
+
+.. table:: Options for ``deegreeCSW``
+
++--------------------------+--------------+---------+----------------------------------------------------------------------------------------------+
+| Option                   | Cardinality  | Value   | Description                                                                                  |
++==========================+==============+=========+==============================================================================================+
+| SupportedVersions        | 0..1         | String  | Supported CSW Version (Default: 2.0.2)                                                       |
++--------------------------+--------------+---------+----------------------------------------------------------------------------------------------+
+| MaxMatches               | 0..1         | Integer | Not negative number of matches (Default:0)                                                   |
++--------------------------+--------------+---------+----------------------------------------------------------------------------------------------+
+| MetadataStoreId          | 0..1         | String  | Id of the meradatastoreId to use as backenend. By default the only configured store is used. |
++--------------------------+--------------+---------+----------------------------------------------------------------------------------------------+
+| EnableTransactions       | 0..1         | Boolean | Enable transactions (CSW operations) default: disabled. (Default: false)                     |
++--------------------------+--------------+---------+----------------------------------------------------------------------------------------------+
+| EnableInspireExtensions  | 0..1         |         | Enable the INSPIRE extensions, default: disabled                                             |
++--------------------------+--------------+---------+----------------------------------------------------------------------------------------------+
+| ExtendedCapabilities     | 0..1         | anyURI  | Include referenced capabilities section.                                                     |
++--------------------------+--------------+---------+----------------------------------------------------------------------------------------------+
+| ElementNames             | 0..1         |         |  List of configured return profiles. See following xml snippet for detailed informations.    |
++--------------------------+--------------+---------+----------------------------------------------------------------------------------------------+
+
+   .. literalinclude:: xml/csw_elementNames.snippet
+      :language: xml
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Extended Functionality
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* deegree3 CSW (up to 3.2-pre11) supports JSON as additional output format. Use *outputFormat="application/json"* in your GetRecords or GetRecordById Request to get the matching records in JSON.  
+
    
 .. tip::
   In order to fully understand deegree CSW configuration, you will have to learn configuration of other workspace aspects as well. Chapter :ref:`anchor-configuration-metadatastore` describes the configuration of metadatastores.
