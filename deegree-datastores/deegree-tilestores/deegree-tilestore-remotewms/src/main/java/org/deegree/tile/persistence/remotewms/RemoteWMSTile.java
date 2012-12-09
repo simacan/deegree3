@@ -46,18 +46,26 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
 import org.apache.commons.io.IOUtils;
+import org.deegree.cs.coordinatesystems.ICRS;
+import org.deegree.feature.FeatureCollection;
 import org.deegree.geometry.Envelope;
+import org.deegree.layer.LayerRef;
 import org.deegree.protocol.wms.client.WMSClient;
+import org.deegree.protocol.wms.ops.GetFeatureInfo;
 import org.deegree.protocol.wms.ops.GetMap;
 import org.deegree.tile.Tile;
 import org.deegree.tile.TileIOException;
 
 /**
- * {@link Tile} implementation used by the {@link RemoteWMSTileStore}.
+ * {@link Tile} implementation used by the {@link RemoteWMSTileDataLevel}.
  * 
  * @author <a href="mailto:schmitz@occamlabs.de">Andreas Schmitz</a>
  * @author last edited by: $Author: mschneider $
@@ -113,6 +121,12 @@ class RemoteWMSTile implements Tile {
                 return new ByteArrayInputStream( out.toByteArray() );
             }
             return client.getMap( gm );
+        } catch ( SocketTimeoutException e ) {
+            String msg = "Error performing GetMap request, read timed out (timeout configured is "
+                         + client.getReadTimeout() + " seconds).";
+            throw new TileIOException( msg );
+        } catch ( UnknownHostException e ) {
+            throw new TileIOException( "Error performing GetMap request, host could not be resolved: " + e.getMessage() );
         } catch ( IOException e ) {
             throw new TileIOException( "Error performing GetMap request: " + e.getMessage(), e );
         }
@@ -121,5 +135,32 @@ class RemoteWMSTile implements Tile {
     @Override
     public Envelope getEnvelope() {
         return gm.getBoundingBox();
+    }
+
+    @Override
+    public FeatureCollection getFeatures( int i, int j, int limit ) {
+        FeatureCollection fc = null;
+        try {
+            List<String> layers = new ArrayList<String>();
+            for ( LayerRef layerRef : gm.getLayers() ) {
+                layers.add( layerRef.getName() );
+            }
+            int width = gm.getWidth();
+            int height = gm.getHeight();
+            Envelope bbox = gm.getBoundingBox();
+            ICRS crs = gm.getCoordinateSystem();
+            GetFeatureInfo request = new GetFeatureInfo( layers, width, height, i, j, bbox, crs, limit );
+            fc = client.doGetFeatureInfo( request, null );
+        } catch ( SocketTimeoutException e ) {
+            String msg = "Error performing GetMap request, read timed out (timeout configured is "
+                         + client.getReadTimeout() + " seconds).";
+            throw new TileIOException( msg );
+        } catch ( UnknownHostException e ) {
+            throw new TileIOException( "Error performing GetMap request, host could not be resolved: " + e.getMessage() );
+        } catch ( Exception e ) {
+            String msg = "Error executing GetFeatureInfo request on remote server: " + e.getMessage();
+            throw new RuntimeException( msg, e );
+        }
+        return fc;
     }
 }
