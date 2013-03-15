@@ -37,6 +37,7 @@ package org.deegree.services.wms.controller.plugins;
 
 import java.awt.image.BufferedImage;
 import java.io.OutputStream;
+import java.util.List;
 
 /**
  * <code>ImageSerializer</code>
@@ -48,6 +49,13 @@ import java.io.OutputStream;
  */
 public interface ImageSerializer {
 
+    /**
+     * Supported image formats
+     * 
+     * @return list of supported image formats (mime-types) for this serializer.
+     */
+    List<String> getFormats();
+    
     /**
      * @param img
      * @param out

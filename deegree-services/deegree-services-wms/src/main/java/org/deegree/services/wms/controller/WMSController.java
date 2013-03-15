@@ -158,7 +158,7 @@ public class WMSController extends AbstractOWS {
 
     private static final String CONFIG_SCHEMA = "/META-INF/schemas/wms/3.2.0/wms_configuration.xsd";
 
-    private final HashMap<String, ImageSerializer> imageSerializers = new HashMap<String, ImageSerializer>();
+    private Map<String, ImageSerializer> imageSerializers = new HashMap<String, ImageSerializer>();
 
     /** The list of supported image formats. */
     public final LinkedList<String> supportedImageFormats = new LinkedList<String>();
@@ -196,6 +196,14 @@ public class WMSController extends AbstractOWS {
         return service;
     }
 
+    public Map<String, ImageSerializer> getImageSerializers() {
+        return imageSerializers;
+    }
+    
+    public void setImageSerializers(Map<String, ImageSerializer> imageSerializers) {
+        this.imageSerializers = imageSerializers;
+    }
+    
     private void traverseMetadataIds( Layer l, HashMap<String, String> dataMetadataIds ) {
         if ( l.getName() != null && l.getDataMetadataSetId() != null ) {
             dataMetadataIds.put( l.getName(), l.getDataMetadataSetId() );

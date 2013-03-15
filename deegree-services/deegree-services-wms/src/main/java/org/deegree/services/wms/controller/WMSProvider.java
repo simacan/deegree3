@@ -39,6 +39,9 @@ import static org.deegree.protocol.wms.WMSConstants.VERSION_111;
 import static org.deegree.protocol.wms.WMSConstants.VERSION_130;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ServiceLoader;
 
 import org.deegree.commons.config.DeegreeWorkspace;
 import org.deegree.commons.config.ResourceManager;
@@ -51,6 +54,7 @@ import org.deegree.remoteows.RemoteOWSStoreManager;
 import org.deegree.services.OWS;
 import org.deegree.services.OWSProvider;
 import org.deegree.services.controller.ImplementationMetadata;
+import org.deegree.services.wms.controller.plugins.ImageSerializer;
 import org.deegree.style.persistence.StyleStoreManager;
 import org.deegree.theme.persistence.ThemeManager;
 
@@ -74,6 +78,9 @@ public class WMSProvider implements OWSProvider {
         }
     };
 
+    private static ServiceLoader<ImageSerializer> imageSerializerLoader;
+    private Map<String, ImageSerializer> imageSerializers;
+
     @Override
     public String getConfigNamespace() {
         return "http://www.deegree.org/services/wms";
@@ -91,7 +98,9 @@ public class WMSProvider implements OWSProvider {
 
     @Override
     public OWS create( URL configURL ) {
-        return new WMSController( configURL, getImplementationMetadata() );
+        WMSController controller = new WMSController( configURL, getImplementationMetadata() );
+        controller.setImageSerializers(imageSerializers);
+        return controller;
     }
 
     @Override
@@ -103,7 +112,13 @@ public class WMSProvider implements OWSProvider {
 
     @Override
     public void init( DeegreeWorkspace workspace ) {
-        // nothing to do
+        imageSerializerLoader = ServiceLoader.load( ImageSerializer.class, workspace.getModuleClassLoader() );
+        imageSerializers = new HashMap<String, ImageSerializer>();
+        for (ImageSerializer imageSerializer : imageSerializerLoader) {
+            for (String format : imageSerializer.getFormats()) {
+                imageSerializers.put(format, imageSerializer);
+            }
+        }
     }
 
 }
