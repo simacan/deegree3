@@ -37,6 +37,7 @@ package org.deegree.protocol.wms.filter;
 
 import java.util.Collections;
 import java.util.List;
+import org.deegree.commons.concurrent.ExecutionContext;
 
 import org.deegree.commons.config.DeegreeWorkspace;
 import org.deegree.commons.config.ResourceInitException;
@@ -59,10 +60,25 @@ import org.deegree.filter.function.ParameterType;
  */
 public class ScaleFunction implements FunctionProvider {
 
-    static final ThreadLocal<Double> scale = new ThreadLocal<Double>();
+    static final String CONTEXT_KEY = "CURRENT_SCALE_VALUE";
 
-    public static ThreadLocal<Double> getCurrentScaleValue() {
-        return scale;
+    public static Double getCurrentScaleValue() {
+        ExecutionContext ctx = ExecutionContext.getCurrent(); 
+        if (ctx != null) {
+            return (Double)ctx.get(CONTEXT_KEY);
+        } else {
+            System.out.println("CANNOT GET CURRENT SCALE - NO EXECUTION CONTEXT");
+        }
+        return null;
+    }
+
+    public static void setCurrentScaleValue(Double scale) {
+        ExecutionContext ctx = ExecutionContext.getCurrent();
+        if (ctx != null) {
+            ctx.put(CONTEXT_KEY, scale);
+        } else {
+            System.out.println("CANNOT SET CURRENT SCALE - NO EXECUTION CONTEXT");
+        }
     }
 
     @Override
@@ -97,7 +113,8 @@ public class ScaleFunction implements FunctionProvider {
             @Override
             public TypedObjectNode[] evaluate( List<TypedObjectNode[]> args )
                                     throws FilterEvaluationException {
-                return new TypedObjectNode[] { new PrimitiveValue( scale.get(), new PrimitiveType( BaseType.DOUBLE ) ) };
+                Double scale = getCurrentScaleValue();
+                return new TypedObjectNode[] { new PrimitiveValue( scale, new PrimitiveType( BaseType.DOUBLE ) ) };
             }
         };
     }

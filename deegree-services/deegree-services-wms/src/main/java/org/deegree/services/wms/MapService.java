@@ -319,6 +319,7 @@ public class MapService {
         List<LayerData> list = new ArrayList<LayerData>();
 
         double scale = gm.getScale();
+        ScaleFunction.setCurrentScaleValue(scale );
 
         List<LayerQuery> queries = new ArrayList<LayerQuery>();        
         
@@ -336,8 +337,6 @@ public class MapService {
 
         ListIterator<LayerQuery> queryIter = queries.listIterator();
 
-        ScaleFunction.getCurrentScaleValue().set( scale );
-
         for ( LayerRef lr : gm.getLayers() ) {
             LayerQuery query = queryIter.next();
             for ( org.deegree.layer.Layer l : Themes.getAllLayers( themeMap.get( lr.getName() ) ) ) {
@@ -354,7 +353,7 @@ public class MapService {
             d.render( ctx );
         }
 
-        ScaleFunction.getCurrentScaleValue().remove();
+        ScaleFunction.setCurrentScaleValue(null);
     }
 
     private LayerQuery buildQuery(  StyleRef style, LayerRef lr, MapOptionsMaps options,
