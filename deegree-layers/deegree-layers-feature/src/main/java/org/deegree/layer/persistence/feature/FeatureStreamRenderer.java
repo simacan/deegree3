@@ -84,8 +84,6 @@ class FeatureStreamRenderer {
     }
 
     void renderFeatureStream( FeatureInputStream features, Style style ) {
-        int cnt = 0;
-
         Renderer renderer = context.getVectorRenderer();
         TextRenderer textRenderer = context.getTextRenderer();
 
@@ -97,6 +95,7 @@ class FeatureStreamRenderer {
         boolean firstPass = true;
         for (Style ss : s.toStylesByRule()) { //.filter(gm.getScale(s)))
             Iterable<Feature> it = firstPass ? features : featureList;
+            int cnt = 0;
             for (Feature f : it) {
                 if (firstPass) {
                     featureList.add(f);
