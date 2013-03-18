@@ -44,6 +44,7 @@ package org.deegree.layer.persistence.feature;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import org.deegree.commons.utils.Triple;
 import org.deegree.feature.Feature;
@@ -88,26 +89,40 @@ class FeatureStreamRenderer {
         Renderer renderer = context.getVectorRenderer();
         TextRenderer textRenderer = context.getTextRenderer();
 
-        for ( Feature f : features ) {
-            try {
-                LinkedList<Triple<Styling, LinkedList<Geometry>, String>> evalds = style.evaluate( f,
-                                                                                                   (XPathEvaluator<Feature>) evaluator );
-                for ( Triple<Styling, LinkedList<Geometry>, String> evald : evalds ) {
-                    if ( evald.first instanceof TextStyling ) {
-                        textRenderer.render( (TextStyling) evald.first, evald.third, evald.second );
-                    } else {
-                        renderer.render( evald.first, evald.second );
-                    }
+        Style s = style;
+        if (s == null) {
+            s = new Style();
+        }
+        List<Feature> featureList = new LinkedList<Feature>();
+        boolean firstPass = true;
+        for (Style ss : s.toStylesByRule()) { //.filter(gm.getScale(s)))
+            Iterable<Feature> it = firstPass ? features : featureList;
+            for (Feature f : it) {
+                if (firstPass) {
+                    featureList.add(f);
                 }
-            } catch ( Throwable e ) {
-                LOG.warn( "Unable to render feature, probably a curve had multiple/non-linear segments." );
-                LOG.warn( "Error message was: {}", e.getLocalizedMessage() );
-                LOG.trace( "Stack trace:", e );
+                try {
+                    LinkedList<Triple<Styling, LinkedList<Geometry>, String>> evalds = ss.evaluate( f,
+                                                                                                       (XPathEvaluator<Feature>) evaluator );
+                    for ( Triple<Styling, LinkedList<Geometry>, String> evald : evalds ) {
+                        if ( evald.first instanceof TextStyling ) {
+                            textRenderer.render( (TextStyling) evald.first, evald.third, evald.second );
+                        } else {
+                            renderer.render( evald.first, evald.second );
+                        }
+                    }
+                    //render(f, evaluator, ss, renderer, textRenderer, gm.getScale(), resolution);
+                } catch (IllegalArgumentException e) {
+                    LOG.warn("Unable to render feature, probably a curve had multiple/non-linear segments.");
+                    LOG.warn("Error message was: {}", e.getLocalizedMessage());
+                    LOG.trace("Stack trace:", e);
+                }
+                if (maxFeatures > 0 && ++cnt == maxFeatures) {
+                    LOG.debug("Reached max features of {} for layer '{}', stopping.", maxFeatures, this);
+                    break;
+                }
             }
-            if ( maxFeatures > 0 && ++cnt == maxFeatures ) {
-                LOG.debug( "Reached max features of {} for layer '{}', stopping.", maxFeatures, this );
-                break;
-            }
+            firstPass = false;
         }
     }
 
