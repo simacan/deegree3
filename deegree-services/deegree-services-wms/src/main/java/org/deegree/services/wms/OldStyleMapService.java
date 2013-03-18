@@ -118,7 +118,7 @@ class OldStyleMapService {
     Pair<BufferedImage, LinkedList<String>> getMapImage( GetMap gm )
                             throws MissingDimensionValue, InvalidDimensionValue {
         LinkedList<String> warnings = new LinkedList<String>();
-        ScaleFunction.getCurrentScaleValue().set( gm.getScale() );
+        ScaleFunction.setCurrentScaleValue( gm.getScale() );
 
         BufferedImage img = MapService.prepareImage( gm );
         Graphics2D g = img.createGraphics();
@@ -130,7 +130,7 @@ class OldStyleMapService {
              || gm.getFormat().equals( "image/gif" ) ) {
             img = postprocessPng8bit( img );
         }
-        ScaleFunction.getCurrentScaleValue().remove();
+        ScaleFunction.setCurrentScaleValue(null);
         return new Pair<BufferedImage, LinkedList<String>>( img, warnings );
     }
 

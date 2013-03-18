@@ -41,6 +41,7 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.deegree.commons.concurrent.ExecutionContext;
 
 import org.deegree.feature.Feature;
 import org.deegree.feature.FeatureCollection;
@@ -133,17 +134,22 @@ public class ThreadedFeatureInputStream implements FeatureInputStream {
         private boolean sleeping;
 
         private boolean finished;
+        
+        private ExecutionContext context;
 
-        private QueueFiller( FeatureInputStream rs, int maxFill, int minFill ) {
+        private QueueFiller( FeatureInputStream rs, int maxFill, int minFill ) {            
+            
             this.rs = rs;
             this.featureQueue = new ArrayBlockingQueue<Feature>( maxFill, true );
             this.minFill = minFill;
+            this.context = ExecutionContext.getCurrent();
         }
 
         @Override
         public void run() {
             LOG.debug( "Producer thread starting" );
             try {
+                ExecutionContext.init(context);
                 Iterator<Feature> iter = rs.iterator();
                 try {
                     Feature f = null;
@@ -153,7 +159,7 @@ public class ThreadedFeatureInputStream implements FeatureInputStream {
                         }
                         synchronized ( this ) {
                             if ( !featureQueue.offer( f ) ) {
-                                // wait until we get notified that queue needs to be filled up again
+                            // wait until we get notified that queue needs to be filled up again
 
                                 // LOG.debug( "Producer thread going to sleep: fill=" + featureQueue.size() );
                                 sleeping = true;
@@ -161,7 +167,7 @@ public class ThreadedFeatureInputStream implements FeatureInputStream {
                                 sleeping = false;
                                 // LOG.debug( "Producer thread waking up: fill=" + featureQueue.size() );
                             } else {
-                                f = null;
+                                f = null;                            
                                 // Wake reading thread
                                 notify();
                             }
@@ -172,8 +178,8 @@ public class ThreadedFeatureInputStream implements FeatureInputStream {
                 }
             } finally {
                 finished = true;
-                rs.close();
-                
+                rs.close();                
+                ExecutionContext.dispose();
                 // Consumer may still be waiting for more input
                 synchronized ( this ) {
                     notify();
@@ -196,7 +202,7 @@ public class ThreadedFeatureInputStream implements FeatureInputStream {
             }
             synchronized (this) {
                 while ( true ) {
-                    // LOG.debug( "Queue empty. Checking if more features are coming from producer." );
+                    // LOG.debug( "Queue empty. Checking if more features are coming from producer." );                
                     if ( finished && featureQueue.isEmpty() ) {
                         return false;
                     }
@@ -205,9 +211,9 @@ public class ThreadedFeatureInputStream implements FeatureInputStream {
                     }
                     try {
                         wait(1000);
-                    } catch(InterruptedException ex) {
+                    } catch(InterruptedException ex) {                        
                         // Ignore
-                    }
+                    }                    
                 }
             }
         }
