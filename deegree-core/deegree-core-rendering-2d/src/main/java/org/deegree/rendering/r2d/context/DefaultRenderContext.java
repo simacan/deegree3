@@ -53,6 +53,7 @@ import static javax.imageio.ImageIO.write;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -93,6 +94,9 @@ public class DefaultRenderContext implements RenderContext {
         image = ImageUtils.prepareImage( format, info.getWidth(), info.getHeight(), info.getTransparent(),
                                          info.getBgColor() );
         graphics = image.createGraphics();
+        graphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+        graphics.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+
         renderer = new Java2DRenderer( graphics, info.getWidth(), info.getHeight(), info.getEnvelope(),
                                        info.getPixelSize() * 1000 );
         textRenderer = new Java2DTextRenderer( renderer );
