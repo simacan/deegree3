@@ -39,11 +39,12 @@ import static org.deegree.protocol.wms.WMSConstants.VERSION_111;
 import static org.deegree.protocol.wms.WMSConstants.VERSION_130;
 
 import java.net.URL;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 
@@ -59,8 +60,8 @@ import org.deegree.services.OWS;
 import org.deegree.services.OWSProvider;
 import org.deegree.services.controller.ImplementationMetadata;
 import org.deegree.services.wms.controller.plugins.DefaultOutputFormatProvider;
-import org.deegree.services.wms.controller.plugins.ImageSerializer;
 import org.deegree.services.wms.controller.plugins.OutputFormatProvider;
+import org.deegree.services.wms.controller.plugins.ImageSerializer;
 import org.deegree.style.persistence.StyleStoreManager;
 import org.deegree.theme.persistence.ThemeManager;
 
@@ -121,7 +122,7 @@ public class WMSProvider implements OWSProvider {
     @Override
     public void init( DeegreeWorkspace workspace ) {
         outputFormatProviders = lookupOutputFormatProviders(workspace);
-        
+
         imageSerializerLoader = ServiceLoader.load( ImageSerializer.class, workspace.getModuleClassLoader() );
         imageSerializers = new HashMap<String, ImageSerializer>();
         for (ImageSerializer imageSerializer : imageSerializerLoader) {

@@ -207,7 +207,6 @@ public class WMSController extends AbstractOWS {
     public void setImageSerializers(Map<String, ImageSerializer> imageSerializers) {
         this.imageSerializers = imageSerializers;
     }
-
     public List<OutputFormatProvider> getOutputFormatProviders() {
         return outputFormatProviders;
     }
