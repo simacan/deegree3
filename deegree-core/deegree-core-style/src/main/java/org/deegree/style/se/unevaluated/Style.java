@@ -47,6 +47,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -220,6 +221,25 @@ public class Style implements Copyable<Style> {
         return new Style( rules, labels, null, name, featureType );
     }
 
+    /**
+     * Creates a new style object for each rule.
+     * 
+     * @param style
+     * @return a list of styles, each containing a single rule
+     */
+    public List<Style> toStylesByRule() {
+        if ( useDefault ) {
+            return Collections.singletonList(this);
+        }
+
+        List<Style> result = new ArrayList<Style>(rules.size());
+        for ( Pair<Continuation<LinkedList<Symbolizer<?>>>, DoublePair> p : this.rules ) {
+           	result.add(new Style( Collections.singletonList(p), labels, null, name, featureType ));
+        }
+        return result;
+    }
+
+    
     /**
      * @param f
      * @return a pair suitable for rendering
