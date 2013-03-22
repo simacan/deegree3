@@ -97,6 +97,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.LogManager;
 import org.deegree.commons.annotations.LoggingNotes;
+import org.deegree.commons.concurrent.ExecutionContext;
 import org.deegree.commons.concurrent.Executor;
 import org.deegree.commons.config.DeegreeWorkspace;
 import org.deegree.commons.config.ResourceInitException;
@@ -318,6 +319,7 @@ public class OGCFrontController extends HttpServlet {
         HttpResponseBuffer responseBuffer = createHttpResponseBuffer( request, response );
 
         try {
+            ExecutionContext.init();
             long entryTime = System.currentTimeMillis();
 
             logHeaders( request );
@@ -388,6 +390,7 @@ public class OGCFrontController extends HttpServlet {
             LOG.debug( "Handling HTTP-GET request with status 'success' took: "
                        + ( System.currentTimeMillis() - entryTime ) + " ms." );
         } finally {
+            ExecutionContext.dispose();
             getInstance().CONTEXT.remove();
             responseBuffer.flushBuffer();
             if ( mainConfig.isValidateResponses() != null && mainConfig.isValidateResponses() ) {
@@ -431,6 +434,7 @@ public class OGCFrontController extends HttpServlet {
         HttpResponseBuffer responseBuffer = createHttpResponseBuffer( request, response );
 
         try {
+            ExecutionContext.init();
             logHeaders( request );
             addHeaders( responseBuffer );
             responseBuffer = handleCompression( responseBuffer );
@@ -516,6 +520,7 @@ public class OGCFrontController extends HttpServlet {
             LOG.debug( "Handling HTTP-POST request with status 'success' took: "
                        + ( System.currentTimeMillis() - entryTime ) + " ms." );
         } finally {
+            ExecutionContext.dispose();
             instance.CONTEXT.remove();
             responseBuffer.flushBuffer();
             if ( mainConfig.isValidateResponses() != null && mainConfig.isValidateResponses() ) {

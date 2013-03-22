@@ -105,7 +105,7 @@ public class Executor {
      *            notified when the method call finishes (succesfully or abnormally), may be null
      */
     public <T> void performAsynchronously( Callable<T> task, ExecutionFinishedListener<T> finishedListener ) {
-
+        
         AsyncPerformer<T> runner = new AsyncPerformer<T>( task, finishedListener );
         this.execService.execute( runner );
     }
@@ -265,17 +265,21 @@ public class Executor {
         private Callable<T> task;
 
         private ExecutionFinishedListener<T> finishedListener;
+        
+        private ExecutionContext context;
 
         private long timeout = -1;
 
         AsyncPerformer( Callable<T> task, ExecutionFinishedListener<T> finishedListener ) {
             this.task = task;
+            this.context = ExecutionContext.getCurrent();
             this.finishedListener = finishedListener;
         }
 
         AsyncPerformer( Callable<T> task, ExecutionFinishedListener<T> finishedListener, long timeout ) {
             this.task = task;
-            this.finishedListener = finishedListener;
+            this.context = ExecutionContext.getCurrent();
+            this.finishedListener = finishedListener;            
             this.timeout = timeout;
         }
 
@@ -287,6 +291,7 @@ public class Executor {
         public void run() {
             ExecutionFinishedEvent<T> finishedEvent = null;
             try {
+                ExecutionContext.init(context);
                 T result = null;
                 if ( this.timeout < 0 ) {
                     result = this.task.call();
@@ -296,6 +301,8 @@ public class Executor {
                 finishedEvent = new ExecutionFinishedEvent<T>( this.task, result );
             } catch ( Throwable t ) {
                 finishedEvent = new ExecutionFinishedEvent<T>( t, this.task );
+            } finally {
+                ExecutionContext.dispose();
             }
             if ( this.finishedListener != null ) {
                 this.finishedListener.executionFinished( finishedEvent );
