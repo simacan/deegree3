@@ -39,7 +39,11 @@ import static org.deegree.protocol.wms.WMSConstants.VERSION_111;
 import static org.deegree.protocol.wms.WMSConstants.VERSION_130;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
@@ -54,7 +58,9 @@ import org.deegree.remoteows.RemoteOWSStoreManager;
 import org.deegree.services.OWS;
 import org.deegree.services.OWSProvider;
 import org.deegree.services.controller.ImplementationMetadata;
+import org.deegree.services.wms.controller.plugins.DefaultOutputFormatProvider;
 import org.deegree.services.wms.controller.plugins.ImageSerializer;
+import org.deegree.services.wms.controller.plugins.OutputFormatProvider;
 import org.deegree.style.persistence.StyleStoreManager;
 import org.deegree.theme.persistence.ThemeManager;
 
@@ -80,6 +86,7 @@ public class WMSProvider implements OWSProvider {
 
     private static ServiceLoader<ImageSerializer> imageSerializerLoader;
     private Map<String, ImageSerializer> imageSerializers;
+    private List<OutputFormatProvider> outputFormatProviders;
 
     @Override
     public String getConfigNamespace() {
@@ -99,6 +106,7 @@ public class WMSProvider implements OWSProvider {
     @Override
     public OWS create( URL configURL ) {
         WMSController controller = new WMSController( configURL, getImplementationMetadata() );
+        controller.setOutputFormatProviders(outputFormatProviders);
         controller.setImageSerializers(imageSerializers);
         return controller;
     }
@@ -112,6 +120,8 @@ public class WMSProvider implements OWSProvider {
 
     @Override
     public void init( DeegreeWorkspace workspace ) {
+        outputFormatProviders = lookupOutputFormatProviders(workspace);
+        
         imageSerializerLoader = ServiceLoader.load( ImageSerializer.class, workspace.getModuleClassLoader() );
         imageSerializers = new HashMap<String, ImageSerializer>();
         for (ImageSerializer imageSerializer : imageSerializerLoader) {
@@ -121,4 +131,25 @@ public class WMSProvider implements OWSProvider {
         }
     }
 
+    private List<OutputFormatProvider> lookupOutputFormatProviders(DeegreeWorkspace workspace) {
+        ServiceLoader<OutputFormatProvider> loader = ServiceLoader.load( OutputFormatProvider.class, workspace.getModuleClassLoader() );
+        List<OutputFormatProvider> list = new ArrayList<OutputFormatProvider>();
+        for (OutputFormatProvider provider : loader) {
+            list.add(provider);
+        }
+        
+        Collections.sort(list, new Comparator<OutputFormatProvider>() {
+
+            @Override
+            public int compare(OutputFormatProvider o1, OutputFormatProvider o2) {
+                if (o1 instanceof DefaultOutputFormatProvider) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+        });
+        return list;
+    }
+    
 }

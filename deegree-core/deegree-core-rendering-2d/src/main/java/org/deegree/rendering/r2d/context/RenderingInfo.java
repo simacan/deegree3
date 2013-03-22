@@ -38,6 +38,7 @@ package org.deegree.rendering.r2d.context;
 import static org.deegree.rendering.r2d.RenderHelper.calcScaleWMS130;
 
 import java.awt.Color;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.deegree.geometry.Envelope;
