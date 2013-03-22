@@ -323,7 +323,6 @@ public class MapService {
         ScaleFunction.setCurrentScaleValue(scale );
 
         List<LayerQuery> queries = new ArrayList<LayerQuery>();
-
         Iterator<LayerRef> layerItr = gm.getLayers().iterator();
         List<OperatorFilter> filters = gm.getFilters();
         Iterator<OperatorFilter> filterItr = filters == null ? null : filters.iterator();
