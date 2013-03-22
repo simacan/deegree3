@@ -136,7 +136,9 @@ import org.deegree.services.metadata.OWSMetadataProviderManager;
 import org.deegree.services.wms.MapService;
 import org.deegree.services.wms.controller.ops.GetFeatureInfo;
 import org.deegree.services.wms.controller.ops.GetMap;
+import org.deegree.services.wms.controller.plugins.DefaultOutputFormatProvider;
 import org.deegree.services.wms.controller.plugins.ImageSerializer;
+import org.deegree.services.wms.controller.plugins.OutputFormatProvider;
 import org.deegree.services.wms.model.layers.Layer;
 import org.deegree.style.StyleRef;
 import org.slf4j.Logger;
@@ -178,6 +180,8 @@ public class WMSController extends AbstractOWS {
     private String metadataURLTemplate;
 
     private FeatureInfoManager featureInfoManager;
+    
+    private List<OutputFormatProvider> outputFormatProviders = null;
 
     public WMSController( URL configURL, ImplementationMetadata<?> serviceInfo ) {
         super( configURL, serviceInfo );
@@ -203,7 +207,15 @@ public class WMSController extends AbstractOWS {
     public void setImageSerializers(Map<String, ImageSerializer> imageSerializers) {
         this.imageSerializers = imageSerializers;
     }
-    
+
+    public List<OutputFormatProvider> getOutputFormatProviders() {
+        return outputFormatProviders;
+    }
+
+    public void setOutputFormatProviders(List<OutputFormatProvider> outputFormatProviders) {
+        this.outputFormatProviders = outputFormatProviders;
+    }
+
     private void traverseMetadataIds( Layer l, HashMap<String, String> dataMetadataIds ) {
         if ( l.getName() != null && l.getDataMetadataSetId() != null ) {
             dataMetadataIds.put( l.getName(), l.getDataMetadataSetId() );
@@ -614,6 +626,15 @@ public class WMSController extends AbstractOWS {
         }
     }
 
+    private OutputFormatProvider findOutputFormatProvider(String format) {
+        for (OutputFormatProvider provider : outputFormatProviders) {
+            if (provider.getSupportedOutputFormats().contains(format)) {
+                return provider;
+            }
+        }
+        return null;
+    }
+    
     protected void getMap( Map<String, String> map, HttpResponseBuffer response, Version version )
                             throws OWSException, IOException, MissingDimensionValue, InvalidDimensionValue {
 
@@ -626,7 +647,11 @@ public class WMSController extends AbstractOWS {
             RenderingInfo info = new RenderingInfo( gm2.getFormat(), gm2.getWidth(), gm2.getHeight(),
                                                     gm2.getTransparent(), gm2.getBgColor(), gm2.getBoundingBox(),
                                                     gm2.getPixelSize(), map );
-            RenderContext ctx = new DefaultRenderContext( info );
+            OutputFormatProvider outputFormatProvider = findOutputFormatProvider(gm2.getFormat());    
+            if (outputFormatProvider == null) {
+                throw new IOException("No output provider for format " + gm2.getFormat());
+            }
+            RenderContext ctx = outputFormatProvider.getRenderers(info); //new DefaultRenderContext( info );
             ctx.setOutput( response.getOutputStream() );
             LinkedList<String> headers = new LinkedList<String>();
             service.getMap( gm2, headers, ctx );

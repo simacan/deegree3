@@ -150,6 +150,10 @@ public class DefaultRenderContext implements RenderContext {
         return false;
     }
 
+    protected boolean writeImage(BufferedImage image, String format, OutputStream out) throws IOException {
+        return write( image, format, out );
+    }
+    
     @Override
     public void paintImage( BufferedImage img ) {
         graphics.drawImage( img, 0, 0, null );
