@@ -57,6 +57,7 @@ import static java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_OFF;
 import static java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
 
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 import org.deegree.rendering.r2d.context.MapOptions.Antialias;
 import org.deegree.rendering.r2d.context.MapOptions.Interpolation;
@@ -77,6 +78,9 @@ public class Java2DHelper {
         applyQuality( layerName, g, options, defaults );
         applyInterpolation( layerName, g, options, defaults );
         applyAntialiasing( layerName, g, options, defaults );
+        
+        g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
     }
 
     private static void applyQuality( final String layerName, final Graphics2D g, final MapOptionsMaps options,
