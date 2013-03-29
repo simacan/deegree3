@@ -38,6 +38,8 @@ package org.deegree.commons.tom.sql;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
+import javax.management.Query;
 
 import org.deegree.commons.tom.TypedObjectNode;
 

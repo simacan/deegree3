@@ -89,12 +89,24 @@ public class PostGISGeometryConverter implements GeometryParticleConverter {
     }
 
     @Override
-    public String getSelectSnippet( String tableAlias ) {
+    public String getSelectSnippet(String tableAlias, Double resolution, Integer scale) {
         String asewkb = useLegacyPredicates ? "AsEWKB" : "ST_AsEWKB";
-        if ( tableAlias != null ) {
-            return asewkb + "(" + tableAlias + "." + column + ")";
+        if (resolution != null) {
+            if ( tableAlias != null ) {
+                return asewkb + "(ST_SimplifyPreserveTopology(" + tableAlias + "." + column + "," + resolution+ "))";
+            }
+            return asewkb + "(ST_SimplifyPreserveTopology(" + column + "," + resolution + "))";            
+        } else {
+            if ( tableAlias != null ) {
+                return asewkb + "(" + tableAlias + "." + column + ")";
+            }
+            return asewkb + "(" + column + ")";            
         }
-        return asewkb + "(" + column + ")";
+    }
+    
+    @Override
+    public String getSelectSnippet( String tableAlias ) {
+        return getSelectSnippet(tableAlias, null, null);
     }
 
     @Override
@@ -171,4 +183,6 @@ public class PostGISGeometryConverter implements GeometryParticleConverter {
     public ICRS getCrs() {
         return crs;
     }
+
+
 }

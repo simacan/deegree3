@@ -69,6 +69,7 @@ import org.deegree.commons.utils.Pair;
 import org.deegree.commons.xml.CommonNamespaces;
 import org.deegree.commons.xml.NamespaceBindings;
 import org.deegree.feature.Feature;
+import org.deegree.feature.persistence.query.Query;
 import org.deegree.feature.persistence.sql.FeatureBuilder;
 import org.deegree.feature.persistence.sql.FeatureTypeMapping;
 import org.deegree.feature.persistence.sql.SQLFeatureStore;
@@ -84,6 +85,7 @@ import org.deegree.geometry.primitive.LineString;
 import org.deegree.geometry.primitive.Polygon;
 import org.deegree.geometry.primitive.patches.SurfacePatch;
 import org.deegree.geometry.primitive.segments.CurveSegment;
+import org.deegree.geometry.utils.GeometryParticleConverter;
 import org.deegree.sqldialect.filter.DBField;
 import org.deegree.sqldialect.filter.MappingExpression;
 import org.jaxen.expr.Expr;
@@ -112,6 +114,8 @@ public class FeatureBuilderRelational implements FeatureBuilder {
     private final SQLFeatureStore fs;
 
     private final FeatureType ft;
+    
+    private final Query query;
 
     private final FeatureTypeMapping ftMapping;
 
@@ -141,10 +145,11 @@ public class FeatureBuilderRelational implements FeatureBuilder {
      * @param escalationPolicy
      *            the void escalation policy, must not be <code>null</code>
      */
-    public FeatureBuilderRelational( SQLFeatureStore fs, FeatureType ft, FeatureTypeMapping ftMapping, Connection conn,
+    public FeatureBuilderRelational( SQLFeatureStore fs, Query query, FeatureType ft, FeatureTypeMapping ftMapping, Connection conn,
                                      String ftTableAlias, VoidEscalationPolicyType escalationPolicy ) {
         this.fs = fs;
         this.ft = ft;
+        this.query = query;
         this.ftMapping = ftMapping;
         this.conn = conn;
         this.tableAlias = ftTableAlias;
@@ -211,7 +216,13 @@ public class FeatureBuilderRelational implements FeatureBuilder {
                 }
             } else if ( mapping instanceof GeometryMapping ) {
                 if ( particleConverter != null ) {
-                    addColumn( colToRsIdx, particleConverter.getSelectSnippet( tableAlias ) );
+                    Double resolution = null;
+                    Integer scale = null;
+                    if (query != null) {
+                        resolution = (Double)query.getHint(Query.QueryHint.HINT_RESOLUTION);
+                        scale = (Integer)query.getHint(Query.QueryHint.HINT_SCALE);
+                    }
+                    addColumn( colToRsIdx, ((GeometryParticleConverter)particleConverter).getSelectSnippet( tableAlias, resolution, scale ) );
                 } else {
                     LOG.info( "Omitting mapping '" + mapping + "' from SELECT list. Not mapped to column.'" );
                 }
@@ -367,7 +378,14 @@ public class FeatureBuilderRelational implements FeatureBuilder {
             GeometryMapping pm = (GeometryMapping) mapping;
             MappingExpression me = pm.getMapping();
             if ( me instanceof DBField ) {
-                String col = converter.getSelectSnippet( tableAlias );
+                Double resolution = null;
+                Integer scale = null;
+                if (query != null) {
+                    resolution = (Double)query.getHint(Query.QueryHint.HINT_RESOLUTION);
+                    scale = (Integer)query.getHint(Query.QueryHint.HINT_SCALE);
+                }
+                
+                String col = ((GeometryParticleConverter)converter).getSelectSnippet( tableAlias, resolution, scale );
                 int colIndex = colToRsIdx.get( col );
                 particle = converter.toParticle( rs, colIndex );
                 Geometry geom = ( (Geometry) particle );

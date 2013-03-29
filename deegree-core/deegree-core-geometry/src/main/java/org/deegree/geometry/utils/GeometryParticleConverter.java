@@ -53,4 +53,6 @@ public interface GeometryParticleConverter extends ParticleConverter<Geometry> {
     public String getSrid();
 
     public ICRS getCrs();
+    
+    public String getSelectSnippet( String tableAlias, Double resolution, Integer scale );
 }

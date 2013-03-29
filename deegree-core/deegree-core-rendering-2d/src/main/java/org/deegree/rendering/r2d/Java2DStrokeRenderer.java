@@ -106,7 +106,7 @@ class Java2DStrokeRenderer {
         } else {
             applyNormalStroke( stroke, uom, object, perpendicularOffset, type );
         }
-
+        
         graphics.draw( object );
     }
 

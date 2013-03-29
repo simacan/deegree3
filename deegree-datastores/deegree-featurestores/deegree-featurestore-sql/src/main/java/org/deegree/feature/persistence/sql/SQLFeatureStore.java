@@ -1111,7 +1111,7 @@ public class SQLFeatureStore implements FeatureStore {
             conn = getConnection();
 
             String tableAlias = "X1";
-            FeatureBuilder builder = new FeatureBuilderRelational( this, ft, ftMapping, conn, tableAlias,
+            FeatureBuilder builder = new FeatureBuilderRelational( this, null, ft, ftMapping, conn, tableAlias,
                                                                    escalationPolicy );
             List<String> columns = builder.getInitialSelectColumns();
             StringBuilder sql = new StringBuilder( "SELECT " );
@@ -1352,7 +1352,7 @@ public class SQLFeatureStore implements FeatureStore {
             LOG.debug( "WHERE clause: " + wb.getWhere() );
             LOG.debug( "ORDER BY clause: " + wb.getOrderBy() );
 
-            FeatureBuilder builder = new FeatureBuilderRelational( this, ft, ftMapping, conn, ftTableAlias,
+            FeatureBuilder builder = new FeatureBuilderRelational( this, query, ft, ftMapping, conn, ftTableAlias,
                                                                    escalationPolicy );
             List<String> columns = builder.getInitialSelectColumns();
 

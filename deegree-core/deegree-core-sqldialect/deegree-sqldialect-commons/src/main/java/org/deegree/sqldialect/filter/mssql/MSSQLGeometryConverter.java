@@ -89,12 +89,17 @@ public class MSSQLGeometryConverter implements GeometryParticleConverter {
         this.is2d = is2D;
     }
 
-    public String getSelectSnippet( String tableAlias ) {
+    public String getSelectSnippet( String tableAlias, Double resolution, Integer scale ) {
         if ( is2d )
             return ( tableAlias == null ? "" : ( tableAlias + "." ) ) + column + ".STAsBinary()";
         if ( tableAlias == null )
             return column + ".ToString()";
         return tableAlias + "." + column + ".ToString()";
+    }
+    
+    @Override
+    public String getSelectSnippet( String tableAlias ) {
+        return getSelectSnippet(tableAlias, null, null);
     }
 
     public String getSetSnippet( Geometry particle ) {
