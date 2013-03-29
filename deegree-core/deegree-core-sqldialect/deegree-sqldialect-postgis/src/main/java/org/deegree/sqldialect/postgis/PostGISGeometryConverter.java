@@ -93,9 +93,9 @@ public class PostGISGeometryConverter implements GeometryParticleConverter {
         String asewkb = useLegacyPredicates ? "AsEWKB" : "ST_AsEWKB";
         if (resolution != null) {
             if ( tableAlias != null ) {
-                return asewkb + "(ST_SimplifyPreserveTopology(" + tableAlias + "." + column + "," + resolution+ "))";
+                return asewkb + "(ST_SimplifyPreserveTopology(" + tableAlias + "." + column + "," + resolution.intValue() + "))";
             }
-            return asewkb + "(ST_SimplifyPreserveTopology(" + column + "," + resolution + "))";            
+            return asewkb + "(ST_SimplifyPreserveTopology(" + column + "," + resolution.intValue() + "))";            
         } else {
             if ( tableAlias != null ) {
                 return asewkb + "(" + tableAlias + "." + column + ")";
