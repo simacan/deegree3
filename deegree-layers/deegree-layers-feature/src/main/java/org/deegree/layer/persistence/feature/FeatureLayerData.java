@@ -35,15 +35,9 @@
  ----------------------------------------------------------------------------*/
 package org.deegree.layer.persistence.feature;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.namespace.QName;
-
+import org.deegree.commons.tom.TypedObjectNode;
+import org.deegree.commons.utils.DoublePair;
+import org.deegree.commons.utils.Pair;
 import org.deegree.feature.Feature;
 import org.deegree.feature.FeatureCollection;
 import org.deegree.feature.GenericFeatureCollection;
@@ -55,10 +49,24 @@ import org.deegree.feature.types.AppSchemas;
 import org.deegree.feature.xpath.TypedObjectNodeXPathEvaluator;
 import org.deegree.filter.FilterEvaluationException;
 import org.deegree.filter.XPathEvaluator;
+import org.deegree.geometry.Geometry;
 import org.deegree.layer.LayerData;
 import org.deegree.rendering.r2d.context.RenderContext;
+import org.deegree.style.se.parser.SymbologyParser;
+import org.deegree.style.se.unevaluated.Continuation;
 import org.deegree.style.se.unevaluated.Style;
+import org.deegree.style.se.unevaluated.Symbolizer;
 import org.slf4j.Logger;
+
+import javax.xml.namespace.QName;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * 
@@ -132,12 +140,57 @@ public class FeatureLayerData implements LayerData {
         return col;
     }
 
+    private Geometry evaluateGeometryExpression(Feature f, Style style) throws FilterEvaluationException {
+        Symbolizer<?> symbolizer  = null;
+
+        for (Pair<Continuation<LinkedList<Symbolizer<?>>>, DoublePair> pair : style.getRules()) {
+            String ruleName = null;
+            if (pair.first instanceof SymbologyParser.FilterContinuation) {
+                SymbologyParser.FilterContinuation cont = (SymbologyParser.FilterContinuation) pair.first;
+                ruleName = cont.common.name;
+            }
+
+            if (ruleName != null && ruleName.endsWith("_featureinfo")) {
+                LinkedList<Symbolizer<?>> list = new LinkedList<Symbolizer<?>>();
+                pair.first.evaluate( list, f, (XPathEvaluator<Feature>)evaluator );
+                if (!list.isEmpty()) {
+                    symbolizer =  list.get(0);
+                    break;
+                }
+            }
+        }
+
+        if (symbolizer != null && symbolizer.getGeometryExpression() != null) {
+
+            TypedObjectNode[] os = symbolizer.getGeometryExpression().evaluate( f, (XPathEvaluator<Feature>)evaluator );
+            if (os.length == 1 && os[0] instanceof Geometry) {
+                return (Geometry)os[0];
+            }
+        }
+        return null;
+    }
+
+
     @Override
     public FeatureCollection info() {
+
         FeatureCollection col = null;
         try {
             col = clearDuplicates( featureStore.query( queries.toArray( new Query[queries.size()] ) ) );
+
+            // Returns the styled (with offset) geometry instead of the original geometry.
+            Iterator<Feature> it = col.iterator();
+            if (it.hasNext()) {
+                Feature f = it.next();
+
+                Geometry evaluated = evaluateGeometryExpression(f, style);
+                if (evaluated != null) {
+                    f.getGeometryProperties().get(0).setValue(evaluated);
+                }
+            }
+
         } catch ( Throwable e ) {
+            e.printStackTrace();
             LOG.warn( "Data could not be fetched from the feature store. The error was '{}'.", e.getLocalizedMessage() );
             LOG.trace( "Stack trace:", e );
         }

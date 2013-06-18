@@ -36,26 +36,6 @@
 
 package org.deegree.services.wms;
 
-import static java.lang.Double.NEGATIVE_INFINITY;
-import static java.lang.Double.POSITIVE_INFINITY;
-import static org.deegree.commons.utils.CollectionUtils.removeDuplicates;
-import static org.deegree.commons.utils.MapUtils.DEFAULT_PIXEL_SIZE;
-import static org.deegree.rendering.r2d.RenderHelper.calcScaleWMS130;
-import static org.deegree.rendering.r2d.context.MapOptionsHelper.insertMissingOptions;
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Timer;
-
 import org.deegree.commons.annotations.LoggingNotes;
 import org.deegree.commons.config.DeegreeWorkspace;
 import org.deegree.commons.ows.exception.OWSException;
@@ -96,6 +76,26 @@ import org.deegree.theme.Theme;
 import org.deegree.theme.Themes;
 import org.deegree.theme.persistence.ThemeManager;
 import org.slf4j.Logger;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Timer;
+
+import static java.lang.Double.NEGATIVE_INFINITY;
+import static java.lang.Double.POSITIVE_INFINITY;
+import static org.deegree.commons.utils.CollectionUtils.removeDuplicates;
+import static org.deegree.commons.utils.MapUtils.DEFAULT_PIXEL_SIZE;
+import static org.deegree.rendering.r2d.RenderHelper.calcScaleWMS130;
+import static org.deegree.rendering.r2d.context.MapOptionsHelper.insertMissingOptions;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * <code>MapService</code>
@@ -377,6 +377,8 @@ public class MapService {
 
         double scale = calcScaleWMS130( gfi.getWidth(), gfi.getHeight(), gfi.getEnvelope(), gfi.getCoordinateSystem(),
                                         DEFAULT_PIXEL_SIZE );
+
+        ScaleFunction.setCurrentScaleValue(scale);
 
         ListIterator<LayerQuery> queryIter = queries.listIterator();
         for ( LayerRef n : gfi.getQueryLayers() ) {
