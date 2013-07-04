@@ -180,7 +180,7 @@ public class FeatureLayerData implements LayerData {
 
             // Returns the styled (with offset) geometry instead of the original geometry.
             Iterator<Feature> it = col.iterator();
-            if (it.hasNext()) {
+            while (it.hasNext()) {
                 Feature f = it.next();
 
                 Geometry evaluated = evaluateGeometryExpression(f, style);
