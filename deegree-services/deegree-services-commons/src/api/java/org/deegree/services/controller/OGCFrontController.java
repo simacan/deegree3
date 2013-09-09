@@ -35,53 +35,6 @@
  ----------------------------------------------------------------------------*/
 package org.deegree.services.controller;
 
-import static java.io.File.createTempFile;
-import static java.util.Collections.emptyList;
-import static org.deegree.commons.ows.exception.OWSException.NO_APPLICABLE_CODE;
-import static org.deegree.commons.tom.ows.Version.parseVersion;
-import static org.reflections.util.ClasspathHelper.forClassLoader;
-import static org.reflections.util.ClasspathHelper.forWebInfLib;
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.beans.Introspector;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.Charset;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.imageio.spi.IIORegistry;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamReader;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.soap.SOAPEnvelope;
 import org.apache.axiom.soap.SOAPFactory;
@@ -123,6 +76,52 @@ import org.deegree.services.jaxb.controller.DeegreeServiceControllerType;
 import org.deegree.services.ows.OWS110ExceptionReportSerializer;
 import org.deegree.services.resources.ResourcesServlet;
 import org.slf4j.Logger;
+
+import javax.imageio.spi.IIORegistry;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamReader;
+import java.beans.Introspector;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import static java.io.File.createTempFile;
+import static java.util.Collections.emptyList;
+import static org.deegree.commons.ows.exception.OWSException.NO_APPLICABLE_CODE;
+import static org.deegree.commons.tom.ows.Version.parseVersion;
+import static org.reflections.util.ClasspathHelper.forClassLoader;
+import static org.reflections.util.ClasspathHelper.forWebInfLib;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Servlet that acts as OWS-HTTP communication end point and dispatcher to the {@link OWS} instances configured in the
@@ -320,6 +319,7 @@ public class OGCFrontController extends HttpServlet {
 
         try {
             ExecutionContext.init();
+            ExecutionContext.getCurrent().put("REQUEST_PARAMS", request.getParameterMap());
             long entryTime = System.currentTimeMillis();
 
             logHeaders( request );
