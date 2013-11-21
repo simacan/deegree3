@@ -36,30 +36,6 @@
 
 package org.deegree.services.wms.model.layers;
 
-import static java.lang.System.currentTimeMillis;
-import static org.deegree.commons.tom.datetime.ISO8601Converter.formatDateTime;
-import static org.deegree.commons.utils.CollectionUtils.clearNulls;
-import static org.deegree.commons.utils.CollectionUtils.map;
-import static org.deegree.commons.utils.MapUtils.DEFAULT_PIXEL_SIZE;
-import static org.deegree.commons.utils.math.MathUtils.round;
-import static org.deegree.cs.CRSCodeType.getUndefined;
-import static org.deegree.feature.types.property.GeometryPropertyType.CoordinateDimension.DIM_2;
-import static org.deegree.feature.types.property.GeometryPropertyType.CoordinateDimension.DIM_2_OR_3;
-import static org.deegree.layer.dims.Dimension.formatDimensionValueList;
-import static org.deegree.rendering.r2d.RenderHelper.calcScaleWMS130;
-import static org.deegree.style.utils.Styles.getStyleFilters;
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.awt.Graphics2D;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import javax.xml.namespace.QName;
-
 import org.deegree.commons.annotations.LoggingNotes;
 import org.deegree.commons.config.DeegreeWorkspace;
 import org.deegree.commons.config.ResourceInitException;
@@ -112,6 +88,29 @@ import org.deegree.services.wms.controller.ops.GetMap;
 import org.deegree.style.se.unevaluated.Style;
 import org.deegree.style.utils.Styles;
 import org.slf4j.Logger;
+
+import javax.xml.namespace.QName;
+import java.awt.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import static java.lang.System.currentTimeMillis;
+import static org.deegree.commons.tom.datetime.ISO8601Converter.formatDateTime;
+import static org.deegree.commons.utils.CollectionUtils.clearNulls;
+import static org.deegree.commons.utils.CollectionUtils.map;
+import static org.deegree.commons.utils.MapUtils.DEFAULT_PIXEL_SIZE;
+import static org.deegree.commons.utils.math.MathUtils.round;
+import static org.deegree.cs.CRSCodeType.getUndefined;
+import static org.deegree.feature.types.property.GeometryPropertyType.CoordinateDimension.DIM_2;
+import static org.deegree.feature.types.property.GeometryPropertyType.CoordinateDimension.DIM_2_OR_3;
+import static org.deegree.layer.dims.Dimension.formatDimensionValueList;
+import static org.deegree.rendering.r2d.RenderHelper.calcScaleWMS130;
+import static org.deegree.style.utils.Styles.getStyleFilters;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * <code>ShapefileLayer</code>

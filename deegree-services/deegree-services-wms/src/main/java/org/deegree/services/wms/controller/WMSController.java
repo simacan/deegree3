@@ -36,48 +36,6 @@
 
 package org.deegree.services.wms.controller;
 
-import static java.util.Collections.singletonList;
-import static javax.imageio.ImageIO.write;
-import static org.deegree.commons.ows.exception.OWSException.OPERATION_NOT_SUPPORTED;
-import static org.deegree.commons.tom.ows.Version.parseVersion;
-import static org.deegree.commons.utils.ArrayUtils.join;
-import static org.deegree.commons.utils.CollectionUtils.getStringJoiner;
-import static org.deegree.commons.utils.CollectionUtils.map;
-import static org.deegree.commons.utils.CollectionUtils.reduce;
-import static org.deegree.commons.xml.CommonNamespaces.getNamespaceContext;
-import static org.deegree.protocol.wms.WMSConstants.VERSION_111;
-import static org.deegree.protocol.wms.WMSConstants.VERSION_130;
-import static org.deegree.services.controller.OGCFrontController.getHttpGetURL;
-import static org.deegree.services.i18n.Messages.get;
-import static org.deegree.services.metadata.MetadataUtils.convertFromJAXB;
-import static org.deegree.services.wms.controller.WMSProvider.IMPLEMENTATION_METADATA;
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.dom.DOMSource;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.fileupload.FileItem;
 import org.deegree.commons.annotations.LoggingNotes;
@@ -89,7 +47,7 @@ import org.deegree.commons.ows.metadata.ServiceProvider;
 import org.deegree.commons.tom.ReferenceResolvingException;
 import org.deegree.commons.tom.ows.Version;
 import org.deegree.commons.utils.CollectionUtils;
-import org.deegree.commons.utils.CollectionUtils.Mapper;
+import org.deegree.commons.utils.CollectionUtils.*;
 import org.deegree.commons.utils.Pair;
 import org.deegree.commons.xml.NamespaceBindings;
 import org.deegree.commons.xml.XMLAdapter;
@@ -114,7 +72,6 @@ import org.deegree.protocol.wms.WMSException.InvalidDimensionValue;
 import org.deegree.protocol.wms.WMSException.MissingDimensionValue;
 import org.deegree.protocol.wms.ops.GetFeatureInfoSchema;
 import org.deegree.protocol.wms.ops.GetLegendGraphic;
-import org.deegree.rendering.r2d.context.DefaultRenderContext;
 import org.deegree.rendering.r2d.context.RenderContext;
 import org.deegree.rendering.r2d.context.RenderingInfo;
 import org.deegree.services.OWS;
@@ -136,12 +93,50 @@ import org.deegree.services.metadata.OWSMetadataProviderManager;
 import org.deegree.services.wms.MapService;
 import org.deegree.services.wms.controller.ops.GetFeatureInfo;
 import org.deegree.services.wms.controller.ops.GetMap;
-import org.deegree.services.wms.controller.plugins.DefaultOutputFormatProvider;
 import org.deegree.services.wms.controller.plugins.ImageSerializer;
 import org.deegree.services.wms.controller.plugins.OutputFormatProvider;
 import org.deegree.services.wms.model.layers.Layer;
 import org.deegree.style.StyleRef;
 import org.slf4j.Logger;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.dom.DOMSource;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+
+import static java.util.Collections.singletonList;
+import static javax.imageio.ImageIO.write;
+import static org.deegree.commons.ows.exception.OWSException.OPERATION_NOT_SUPPORTED;
+import static org.deegree.commons.tom.ows.Version.parseVersion;
+import static org.deegree.commons.utils.ArrayUtils.join;
+import static org.deegree.commons.utils.CollectionUtils.*;
+import static org.deegree.commons.xml.CommonNamespaces.getNamespaceContext;
+import static org.deegree.protocol.wms.WMSConstants.VERSION_111;
+import static org.deegree.protocol.wms.WMSConstants.VERSION_130;
+import static org.deegree.services.controller.OGCFrontController.getHttpGetURL;
+import static org.deegree.services.i18n.Messages.get;
+import static org.deegree.services.metadata.MetadataUtils.convertFromJAXB;
+import static org.deegree.services.wms.controller.WMSProvider.IMPLEMENTATION_METADATA;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * <code>WMSController</code> handles the protocol and map service globally.
@@ -646,10 +641,12 @@ public class WMSController extends AbstractOWS {
             RenderingInfo info = new RenderingInfo( gm2.getFormat(), gm2.getWidth(), gm2.getHeight(),
                                                     gm2.getTransparent(), gm2.getBgColor(), gm2.getBoundingBox(),
                                                     gm2.getPixelSize(), map );
+
             OutputFormatProvider outputFormatProvider = findOutputFormatProvider(gm2.getFormat());    
             if (outputFormatProvider == null) {
                 throw new IOException("No output provider for format " + gm2.getFormat());
             }
+
             RenderContext ctx = outputFormatProvider.getRenderers(info); //new DefaultRenderContext( info );
             ctx.setOutput( response.getOutputStream() );
             LinkedList<String> headers = new LinkedList<String>();

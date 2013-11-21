@@ -35,19 +35,6 @@
  ----------------------------------------------------------------------------*/
 package org.deegree.services.wms.controller;
 
-import static org.deegree.protocol.wms.WMSConstants.VERSION_111;
-import static org.deegree.protocol.wms.WMSConstants.VERSION_130;
-
-import java.net.URL;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ServiceLoader;
-
 import org.deegree.commons.config.DeegreeWorkspace;
 import org.deegree.commons.config.ResourceManager;
 import org.deegree.commons.tom.ows.Version;
@@ -60,10 +47,22 @@ import org.deegree.services.OWS;
 import org.deegree.services.OWSProvider;
 import org.deegree.services.controller.ImplementationMetadata;
 import org.deegree.services.wms.controller.plugins.DefaultOutputFormatProvider;
-import org.deegree.services.wms.controller.plugins.OutputFormatProvider;
 import org.deegree.services.wms.controller.plugins.ImageSerializer;
+import org.deegree.services.wms.controller.plugins.OutputFormatProvider;
 import org.deegree.style.persistence.StyleStoreManager;
 import org.deegree.theme.persistence.ThemeManager;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+
+import static org.deegree.protocol.wms.WMSConstants.VERSION_111;
+import static org.deegree.protocol.wms.WMSConstants.VERSION_130;
 
 /**
  * 
@@ -143,7 +142,7 @@ public class WMSProvider implements OWSProvider {
 
             @Override
             public int compare(OutputFormatProvider o1, OutputFormatProvider o2) {
-                if (o1 instanceof DefaultOutputFormatProvider) {
+                if (o1.getClass().equals(DefaultOutputFormatProvider.class)) {
                     return 1;
                 } else {
                     return -1;

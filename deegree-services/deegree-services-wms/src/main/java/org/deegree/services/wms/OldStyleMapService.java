@@ -41,30 +41,8 @@
  ----------------------------------------------------------------------------*/
 package org.deegree.services.wms;
 
-import static org.deegree.commons.utils.CollectionUtils.AND;
-import static org.deegree.commons.utils.CollectionUtils.addAllUncontained;
-import static org.deegree.commons.utils.CollectionUtils.map;
-import static org.deegree.commons.utils.CollectionUtils.reduce;
-import static org.deegree.commons.utils.MapUtils.DEFAULT_PIXEL_SIZE;
-import static org.deegree.rendering.r2d.RenderHelper.calcScaleWMS130;
-import static org.deegree.rendering.r2d.context.Java2DHelper.applyHints;
-import static org.deegree.services.wms.model.layers.Layer.render;
-import static org.deegree.style.utils.ImageUtils.postprocessPng8bit;
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
 import org.deegree.commons.utils.CollectionUtils;
-import org.deegree.commons.utils.CollectionUtils.Mapper;
+import org.deegree.commons.utils.CollectionUtils.*;
 import org.deegree.commons.utils.DoublePair;
 import org.deegree.commons.utils.Pair;
 import org.deegree.feature.Feature;
@@ -90,6 +68,24 @@ import org.deegree.services.wms.model.layers.FeatureLayer;
 import org.deegree.services.wms.model.layers.Layer;
 import org.deegree.style.se.unevaluated.Style;
 import org.slf4j.Logger;
+
+import javax.xml.namespace.QName;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import static org.deegree.commons.utils.CollectionUtils.*;
+import static org.deegree.commons.utils.MapUtils.DEFAULT_PIXEL_SIZE;
+import static org.deegree.rendering.r2d.RenderHelper.calcScaleWMS130;
+import static org.deegree.rendering.r2d.context.Java2DHelper.applyHints;
+import static org.deegree.services.wms.model.layers.Layer.render;
+import static org.deegree.style.utils.ImageUtils.postprocessPng8bit;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Factored out old style map service methods (using old configuration, old architecture).

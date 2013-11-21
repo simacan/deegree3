@@ -35,34 +35,20 @@
  ----------------------------------------------------------------------------*/
 package org.deegree.rendering.r2d.context;
 
-import static java.awt.RenderingHints.KEY_ANTIALIASING;
-import static java.awt.RenderingHints.KEY_INTERPOLATION;
-import static java.awt.RenderingHints.KEY_RENDERING;
-import static java.awt.RenderingHints.KEY_TEXT_ANTIALIASING;
-import static java.awt.RenderingHints.VALUE_ANTIALIAS_OFF;
-import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
-import static java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC;
-import static java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR;
-import static java.awt.RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
-import static java.awt.RenderingHints.VALUE_RENDER_DEFAULT;
-import static java.awt.RenderingHints.VALUE_RENDER_QUALITY;
-import static java.awt.RenderingHints.VALUE_RENDER_SPEED;
-import static java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_OFF;
-import static java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
-import static javax.imageio.ImageIO.write;
-import static org.apache.commons.io.IOUtils.closeQuietly;
-
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.OutputStream;
-
 import org.deegree.rendering.r2d.Java2DRasterRenderer;
 import org.deegree.rendering.r2d.Java2DRenderer;
 import org.deegree.rendering.r2d.Java2DTextRenderer;
 import org.deegree.rendering.r2d.Java2DTileRenderer;
 import org.deegree.style.utils.ImageUtils;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import static java.awt.RenderingHints.*;
+import static javax.imageio.ImageIO.write;
+import static org.apache.commons.io.IOUtils.closeQuietly;
 
 /**
  * 
@@ -142,7 +128,7 @@ public class DefaultRenderContext implements RenderContext {
                 if ( format.equals( "png; subtype=8bit" ) || format.equals( "png; mode=8bit" ) ) {
                     format = "png";
                 }
-                return write( image, format, out );
+                return writeImage( image, format, out );
             }
         } finally {
             closeQuietly( out );

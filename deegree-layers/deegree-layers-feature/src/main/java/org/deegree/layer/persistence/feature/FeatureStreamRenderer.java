@@ -41,11 +41,6 @@
  ----------------------------------------------------------------------------*/
 package org.deegree.layer.persistence.feature;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.util.LinkedList;
-import java.util.List;
-
 import org.deegree.commons.utils.Triple;
 import org.deegree.feature.Feature;
 import org.deegree.feature.stream.FeatureInputStream;
@@ -58,6 +53,12 @@ import org.deegree.style.se.unevaluated.Style;
 import org.deegree.style.styling.Styling;
 import org.deegree.style.styling.TextStyling;
 import org.slf4j.Logger;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Responsible for using a renderer to evaluate and render a feature stream.
@@ -91,7 +92,7 @@ class FeatureStreamRenderer {
         if (s == null) {
             s = new Style();
         }
-        List<Feature> featureList = new LinkedList<Feature>();
+        List<Feature> featureList = new ArrayList<Feature>(10000);
         boolean firstPass = true;
         for (Style ss : s.toStylesByRule()) { //.filter(gm.getScale(s)))
             Iterable<Feature> it = firstPass ? features : featureList;

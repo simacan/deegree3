@@ -36,16 +36,16 @@
 
 package org.deegree.cs;
 
-import static org.deegree.commons.utils.ArrayUtils.contains;
-
-import java.util.Arrays;
-import java.util.List;
-
 import org.deegree.commons.annotations.LoggingNotes;
 import org.deegree.commons.utils.ArrayUtils;
 import org.deegree.cs.i18n.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.deegree.commons.utils.ArrayUtils.contains;
 
 /**
  * The <code>CRSIdentifiable</code> class can be used to identify Coordinate system components.
@@ -285,8 +285,8 @@ public class CRSIdentifiable implements CRSResource {
     public boolean equals( Object other ) {
         if ( other != null && other instanceof CRSIdentifiable ) {
             CRSResource that = ( (CRSResource) other );
-            CRSCodeType[] mId = getCodes();
-            CRSCodeType[] yId = that.getCodes();
+            CRSCodeType[] mId = codes;
+            CRSCodeType[] yId = that instanceof CRSIdentifiable ? ((CRSIdentifiable)that).codes : that.getCodes();
             CRSCodeType[] small = mId.length >= yId.length ? yId : mId;
             CRSCodeType[] large = mId.length < yId.length ? yId : mId;
 

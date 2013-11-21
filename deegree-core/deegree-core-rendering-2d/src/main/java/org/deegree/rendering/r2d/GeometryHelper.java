@@ -41,13 +41,6 @@
  ----------------------------------------------------------------------------*/
 package org.deegree.rendering.r2d;
 
-import static org.deegree.commons.utils.math.MathUtils.isZero;
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Path2D.Double;
-import java.util.Iterator;
-
 import org.deegree.cs.coordinatesystems.ICRS;
 import org.deegree.cs.exceptions.TransformationException;
 import org.deegree.cs.exceptions.UnknownCRSException;
@@ -61,6 +54,13 @@ import org.deegree.geometry.primitive.Curve;
 import org.deegree.geometry.primitive.Point;
 import org.deegree.geometry.primitive.Surface;
 import org.slf4j.Logger;
+
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Path2D.Double;
+import java.util.Iterator;
+
+import static org.deegree.commons.utils.math.MathUtils.isZero;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Used to transform, linearize, clip and fix geometry orientation for rendering.
@@ -77,6 +77,8 @@ class GeometryHelper {
     private static final GeometryLinearizer linearizer = new GeometryLinearizer();
 
     private GeometryTransformer transformer;
+
+
 
     private AffineTransform worldToScreen;
 
@@ -135,6 +137,7 @@ class GeometryHelper {
             ICRS crs = null;
             try {
                 crs = ( (Geometry) g ).getCoordinateSystem();
+
                 if ( transformer.getTargetCRS().equals( crs ) ) {
                     return g;
                 }

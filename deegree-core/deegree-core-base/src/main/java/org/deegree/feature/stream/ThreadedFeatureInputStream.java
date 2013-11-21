@@ -35,19 +35,19 @@
  ----------------------------------------------------------------------------*/
 package org.deegree.feature.stream;
 
+import org.deegree.commons.concurrent.ExecutionContext;
+import org.deegree.feature.Feature;
+import org.deegree.feature.FeatureCollection;
+import org.deegree.feature.Features;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.deegree.commons.concurrent.ExecutionContext;
-
-import org.deegree.feature.Feature;
-import org.deegree.feature.FeatureCollection;
-import org.deegree.feature.Features;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * {@link FeatureInputStream} that uses a separate thread to keep an internal queue of features filled.
@@ -137,12 +137,17 @@ public class ThreadedFeatureInputStream implements FeatureInputStream {
         
         private ExecutionContext context;
 
+        private Iterator<Feature> iter;
+
         private QueueFiller( FeatureInputStream rs, int maxFill, int minFill ) {            
             
             this.rs = rs;
             this.featureQueue = new ArrayBlockingQueue<Feature>( maxFill, true );
             this.minFill = minFill;
             this.context = ExecutionContext.getCurrent();
+
+
+            //this.finished = !iter.hasNext();
         }
 
         @Override
@@ -150,7 +155,9 @@ public class ThreadedFeatureInputStream implements FeatureInputStream {
             LOG.debug( "Producer thread starting" );
             try {
                 ExecutionContext.init(context);
-                Iterator<Feature> iter = rs.iterator();
+
+                this.iter = rs.iterator();
+
                 try {
                     Feature f = null;
                     while ( iter.hasNext() && !exitRequested ) {
