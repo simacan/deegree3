@@ -68,6 +68,8 @@ public class PostGISGeometryConverter implements GeometryParticleConverter {
 
     private final String srid;
 
+    private final Double geometrySimplificationFactor;
+
     /**
      * Creates a new {@link PostGISGeometryConverter} instance.
      * 
@@ -86,16 +88,23 @@ public class PostGISGeometryConverter implements GeometryParticleConverter {
         this.crs = crs;
         this.srid = srid;
         this.useLegacyPredicates = useLegacyPredicates;
+
+        String simplificationFactorSetting = System.getenv("DEEGREE_GEOMETRY_SIMPLIFICATION_FACTOR");
+        if (simplificationFactorSetting != null && !"".equals(simplificationFactorSetting.trim() )) {
+            this.geometrySimplificationFactor = Double.parseDouble(simplificationFactorSetting);
+        } else {
+            this.geometrySimplificationFactor = null;
+        }
     }
 
     @Override
     public String getSelectSnippet(String tableAlias, Double resolution, Integer scale) {
         String asewkb = useLegacyPredicates ? "AsEWKB" : "ST_AsEWKB";
-        if (resolution != null) {
+        if (resolution != null && geometrySimplificationFactor != null) {
             if ( tableAlias != null ) {
-                return asewkb + "(ST_SimplifyPreserveTopology(" + tableAlias + "." + column + "," + resolution+ "))";
+                return asewkb + "(ST_SimplifyPreserveTopology(" + tableAlias + "." + column + "," + resolution * geometrySimplificationFactor + "))";
             }
-            return asewkb + "(ST_SimplifyPreserveTopology(" + column + "," + resolution + "))";            
+            return asewkb + "(ST_SimplifyPreserveTopology(" + column + "," + resolution * geometrySimplificationFactor + "))";
         } else {
             if ( tableAlias != null ) {
                 return asewkb + "(" + tableAlias + "." + column + ")";

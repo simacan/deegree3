@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: java3d:java3d-vrml97:deegreeversion">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/java3d/java3d-vrml97/deegreeversion/java3d-vrml97-deegreeversion.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/java3d/java3d-vrml97/deegreeversion/java3d-vrml97-deegreeversion-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/java3d/java3d-vrml97/deegreeversion/java3d-vrml97-deegreeversion-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

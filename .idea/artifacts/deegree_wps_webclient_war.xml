@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="deegree-wps-webclient:war">
+    <output-path>$PROJECT_DIR$/deegree-client/deegree-wps-webclient/target</output-path>
+    <root id="archive" name="deegree-wps-webclient-3.2.0.war">
+      <element id="artifact" artifact-name="deegree-wps-webclient:war exploded" />
+    </root>
+  </artifact>
+</component>
